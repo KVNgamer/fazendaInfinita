@@ -1,0 +1,33 @@
+# Troque o nome do app (precisa ser único no Fly): fly launch --no-deploy --copy-config
+app = "fazenda-infinita"
+primary_region = "gru" # São Paulo
+
+[build]
+
+[env]
+  PORT = "8080"
+  HOST = "0.0.0.0"
+  # atrás do Cloudflare o IP real vem neste cabeçalho (apague esta linha se não usar o Cloudflare)
+  CLIENT_IP_HEADER = "cf-connecting-ip"
+  # os endereços do site que podem abrir o WebSocket (troque pelo seu domínio)
+  ALLOWED_ORIGINS = "https://SEU-DOMINIO.com"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # o jogo de cada pessoa vive na memória: nunca desligar nem criar uma segunda máquina
+  auto_stop_machines = "off"
+  auto_start_machines = false
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    grace_period = "15s"
+    interval = "30s"
+    timeout = "5s"
+    method = "GET"
+    path = "/api/health"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fazenda Infinita</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Figtree:wght@400;600&display=swap" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="app">
+      <div class="hud" id="hudclock">
+        <div id="calendar" aria-label="Dia"><b>DIA</b><span id="calDay">1</span></div>
+        <div id="clockBox">
+          <svg id="clock" viewBox="0 0 64 64" role="img" aria-label="Relógio">
+            <circle class="face" cx="32" cy="32" r="29" />
+            <g id="clockTicks"></g>
+            <line id="hHour" class="hand" x1="32" y1="32" x2="32" y2="17" stroke-width="3.4" />
+            <line id="hMin" class="hand min" x1="32" y1="32" x2="32" y2="9" stroke-width="2.2" />
+            <circle class="pin" cx="32" cy="32" r="3" />
+          </svg>
+          <span id="clockText">06:00</span>
+        </div>
+        <div id="hudinfo" hidden></div>
+      </div>
+      <div class="hud" id="hudstats">
+        <div><b aria-label="Energia">⚡</b><i id="bEn"></i></div>
+        <div><b aria-label="Vida">♥</b><i id="bHp"></i></div>
+      </div>
+      <button type="button" id="btnMenu">Menu <kbd>Tab</kbd><i id="unread" hidden></i></button>
+      <div class="hud" id="toast" hidden></div>
+
+      <div class="hud" id="legend">
+        <b>Controles</b><br />
+        <b>W A S D</b> andar<br />
+        <b>Mouse</b> olhar (clique na tela)<br />
+        <b>Esc</b> solta o mouse<br />
+        <b>Clique / Espaço</b> usar item<br />
+        <b>Tab</b> menu<br />
+        <b>E</b> interagir<br />
+        <b>I</b> inventário<br />
+        <b>C</b> personagem<br />
+        <b>L</b> terrenos<br />
+        <b>T</b> trabalhadores<br />
+        <b>F</b> amigos e visitas<br />
+        <b>1–9</b> hotbar<br />
+        <b>H</b> esconder esta lista
+      </div>
+
+      <div class="hud" id="hint" hidden>Clique na tela para controlar o mouse · Esc solta</div>
+      <div class="hud" id="prompt" hidden></div>
+      <div class="hud" id="cross"></div>
+      <div id="hotbar"></div>
+
+      <div id="specbar">
+        <button type="button" id="btnExit" hidden>Sair do modo automático (E)</button>
+        <span id="speedWrap" hidden>
+          <span class="lab">Velocidade</span>
+          <span class="seg" id="speeds" role="group" aria-label="Velocidade do tempo"></span>
+        </span>
+      </div>
+
+      <div id="visitbar" hidden>
+        <span class="lab" id="visitTitle"></span>
+        <span class="seg" id="visitBtns" role="group" aria-label="Ajudar na fazenda visitada"></span>
+      </div>
+
+      <div id="modal" hidden></div>
+
+      <div id="conn" hidden></div>
+      <div id="recoveryBox" hidden>
+        <b>Anote o seu código de recuperação</b>
+        <p>Se você esquecer a senha, este código é a <b>única</b> forma de entrar de novo na conta. Guarde num lugar seguro: ele não será mostrado outra vez, e quem tiver o código pode trocar a sua senha.</p>
+        <code id="recoveryCode"></code>
+        <div class="mbs"><button type="button" id="recoveryCopy" class="mb alt">Copiar</button><button type="button" id="recoveryDone" class="mb">Anotei, entrar no jogo</button></div>
+      </div>
+
+      <div id="auth" hidden>
+        <form id="authForm">
+          <h2>Fazenda Infinita</h2>
+          <div class="seg" role="group" aria-label="Entrar ou criar conta">
+            <button type="button" id="tabLogin" aria-pressed="true">Entrar</button>
+            <button type="button" id="tabRegister" aria-pressed="false">Criar conta</button>
+            <button type="button" id="tabRecover" aria-pressed="false">Esqueci a senha</button>
+          </div>
+          <label for="authUser">Nome</label>
+          <input id="authUser" name="username" autocomplete="username" maxlength="20" required />
+          <label for="authCode" id="authCodeLabel" hidden>Código de recuperação</label>
+          <input id="authCode" name="code" autocomplete="off" maxlength="40" placeholder="XXXX-XXXX-XXXX-XXXX" hidden />
+          <label for="authPass" id="authPassLabel">Senha</label>
+          <input id="authPass" name="password" type="password" autocomplete="current-password" maxlength="128" required />
+          <p id="authHint" class="mnote" hidden>Nome de 3 a 20 letras, números ou _. Senha de 8 ou mais caracteres. Ao criar a conta você recebe um código para recuperar a senha.</p>
+          <p id="recoverHint" class="mnote" hidden>Escreva o seu nome, o código de recuperação que você recebeu ao criar a conta e uma senha nova (de 8 ou mais caracteres).</p>
+          <p id="authError" role="alert"></p>
+          <button type="submit" id="authSubmit" class="mb">Entrar</button>
+        </form>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

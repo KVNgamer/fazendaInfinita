@@ -1,0 +1,1460 @@
+<title>Fazenda Infinita</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Figtree:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: coluna única de leitura (max 980px); demo jogável em moldura larga; tabelas rolam dentro do próprio bloco. */
+:root{
+  --bg:#eef2ea; --surface:#ffffff; --fg:#1b2a21; --muted:#55665b; --line:#cfd9cb;
+  --leaf:#2f7a3f; --soil:#7a4f33; --silver:#8a9aa8; --gold:#c98a0a; --gold-soft:#fbefc9; --leaf-soft:#dcecd8; --bad:#b3392f; --night:#2c3a55;
+  --font-display:'Pixelify Sans',ui-monospace,monospace;
+  --font-body:'Figtree',system-ui,sans-serif;
+  --font-data:'JetBrains Mono',ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101812; --surface:#18231b; --fg:#e6efe5; --muted:#9bb0a0; --line:#2b3b2f;
+  --leaf:#6cc27c; --soil:#c08a63; --silver:#a9b8c4; --gold:#f0bd42; --gold-soft:#3a2f10; --leaf-soft:#1f3624; --bad:#ef7b70; --night:#42557d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101812; --surface:#18231b; --fg:#e6efe5; --muted:#9bb0a0; --line:#2b3b2f;
+  --leaf:#6cc27c; --soil:#c08a63; --silver:#a9b8c4; --gold:#f0bd42; --gold-soft:#3a2f10; --leaf-soft:#1f3624; --bad:#ef7b70; --night:#42557d; color-scheme:dark}
+
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.6;
+  padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:56px}
+section{display:flex;flex-direction:column;gap:18px;min-width:0}
+h1,h2,h3{font-family:var(--font-display);font-weight:700;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(2.4rem,7vw,4rem);letter-spacing:.01em}
+h2{font-size:1.9rem}
+h3{font-size:1.2rem}
+p{margin:0;max-width:68ch}
+.lead{font-size:1.15rem;color:var(--muted);max-width:60ch}
+.eyebrow{font-family:var(--font-data);font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--leaf)}
+.toc{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.9rem}
+.toc a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px}
+.toc a:hover,.toc a:focus-visible{text-decoration-color:var(--leaf);outline:none}
+.frame{background:var(--surface);border:2px solid var(--line);padding:10px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.cap{font-size:.85rem;color:var(--muted);max-width:none}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card h3{color:var(--leaf)}
+ul{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px;max-width:68ch}
+.scroll{overflow-x:auto;border:1px solid var(--line);background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.92rem}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--font-data);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td.n{font-family:var(--font-data);font-variant-numeric:tabular-nums;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+.note{border-left:4px solid var(--gold);background:var(--gold-soft);padding:12px 16px;max-width:none}
+.note b{font-family:var(--font-display);font-weight:700}
+.warn{border-left-color:var(--bad)}
+code,pre{font-family:var(--font-data);font-size:.85rem}
+pre{margin:0;padding:16px;background:var(--surface);border:1px solid var(--line);overflow-x:auto;line-height:1.5}
+button{font:inherit;color:var(--fg);cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.btn{font-family:var(--font-display);font-weight:700;font-size:.95rem;background:var(--leaf-soft);border:2px solid var(--leaf);padding:6px 14px}
+.btn:hover{background:var(--leaf);color:var(--bg)}
+.btn:disabled{opacity:.4;cursor:default}
+/* demo 3D */
+#stage3d{position:relative;width:100%;aspect-ratio:16/9;min-height:280px;background:#9fd4ef;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+#stage3d:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+#stage3d canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+#stage3d .msg{position:absolute;inset:0;display:none;align-items:center;justify-content:center;padding:20px;text-align:center;color:#1b2a21}
+.hud{position:absolute;pointer-events:none;font-family:var(--font-data)}
+#hudtop{left:10px;top:8px;background:rgba(16,24,18,.75);color:#fff;padding:4px 10px;font-size:.78rem}
+#cross{left:50%;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px}
+#cross::before,#cross::after{content:"";position:absolute;background:#fff;box-shadow:0 0 0 1px rgba(0,0,0,.5)}
+#cross::before{left:6px;top:0;width:2px;height:14px}
+#cross::after{top:6px;left:0;height:2px;width:14px}
+#hotbar{left:50%;bottom:8px;transform:translateX(-50%);display:flex;gap:3px;background:rgba(16,24,18,.75);padding:4px}
+.hb{pointer-events:auto;position:relative;width:clamp(28px,6vw,46px);aspect-ratio:1;background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.35);padding:0;display:flex;align-items:center;justify-content:center}
+.hb svg{width:72%;height:72%}
+.hb[aria-pressed=true]{border-color:#f0bd42;background:rgba(240,189,66,.32)}
+.hb i{position:absolute;left:2px;top:0;font-style:normal;font-size:.6rem;color:#fff}
+.hb em{position:absolute;right:1px;bottom:0;font-style:normal;font-size:.6rem;color:#fff;background:rgba(0,0,0,.65);padding:0 2px}
+#dpad{left:10px;bottom:64px;display:none;grid-template-columns:repeat(3,38px);gap:3px}
+#dpad button,#useBtn button{pointer-events:auto;height:38px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.55);color:#fff;padding:0;font-family:var(--font-data)}
+#useBtn{right:10px;bottom:64px;display:none}
+#useBtn button{width:70px;height:46px;font-weight:700}
+@media (pointer:coarse){#dpad{display:grid}#useBtn{display:block}}
+#stage3d.spec #hotbar,#stage3d.spec #cross,#stage3d.spec #dpad,#stage3d.spec #useBtn{display:none}
+.ctl{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+.ctl .lab{font-size:.85rem;color:var(--muted)}
+.seg{display:inline-flex;border:2px solid var(--line)}
+.seg button{background:var(--bg);border:0;padding:3px 12px;font-family:var(--font-data);font-size:.8rem}
+.seg button[aria-pressed=true]{background:var(--leaf);color:var(--bg)}
+.seg button:disabled{opacity:.4;cursor:default}
+.status{min-height:1.6em;font-size:.9rem;color:var(--fg)}
+.wlist{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:8px}
+.wi{border:1px solid var(--line);background:var(--bg);padding:6px 10px;font-size:.82rem;display:flex;flex-direction:column;gap:2px}
+.wi b{font-family:var(--font-display);font-size:.98rem}
+.wi span{color:var(--muted)}
+.stages{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:14px}
+.stage{background:var(--surface);border:1px solid var(--line);padding:8px 8px 12px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stage svg{display:block;width:100%;height:auto}
+.stage .d{font-family:var(--font-data);font-size:.75rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.stage b{font-family:var(--font-display);font-size:1.1rem}
+.stage span.t{font-size:.85rem;color:var(--muted)}
+/* mapa de terrenos */
+.land{display:grid;grid-template-columns:repeat(10,1fr);gap:2px;max-width:420px}
+.land i{aspect-ratio:1;background:var(--leaf);opacity:.85}
+.land i.p{background:var(--soil)}
+.land-wrap{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;align-items:start}
+@media(max-width:620px){.land-wrap{grid-template-columns:1fr}}
+.landbox{display:flex;flex-direction:column;gap:6px;min-width:0}
+.landx{border:2px dashed var(--gold);background:var(--gold-soft);padding:8px 10px;font-size:.85rem;max-width:420px}
+/* personagem */
+.doll{display:grid;grid-template-columns:1fr 130px 1fr;gap:10px;align-items:center;justify-items:center}
+.doll .mid{background:var(--leaf-soft);border:1px solid var(--line);padding:8px;display:flex;justify-content:center;grid-row:span 3}
+.slot{width:76px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:.72rem;text-align:center;color:var(--muted);line-height:1.2}
+.slot .box{width:60px;height:60px;border:2px solid var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center}
+.slot svg{width:42px;height:42px}
+.slot b{color:var(--fg);font-weight:600}
+@media(max-width:420px){.doll{grid-template-columns:1fr 1fr}.doll .mid{grid-column:1/-1;grid-row:auto;order:-1}}
+.wbar{display:flex;flex-direction:column;gap:4px;font-size:.84rem}
+.wbar i{display:block;height:12px;background:var(--line);position:relative}
+.wbar i::after{content:"";position:absolute;inset:0;width:var(--v);background:var(--c,var(--leaf))}
+.wbar em{font-style:normal;font-family:var(--font-data);font-variant-numeric:tabular-nums}
+.inv{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.inv.nine{grid-template-columns:repeat(9,1fr);gap:4px}
+.cell{aspect-ratio:1;border:2px solid var(--line);background:var(--bg);position:relative;display:flex;align-items:center;justify-content:center;padding:0;min-width:0}
+.cell.sel{border-color:var(--gold);background:var(--gold-soft)}
+button.cell:hover{border-color:var(--leaf)}
+.cell svg{width:70%;height:70%}
+.cell .q{position:absolute;right:2px;bottom:0;font-family:var(--font-data);font-size:.68rem;background:var(--surface);padding:0 3px;border:1px solid var(--line)}
+.cell .k{position:absolute;left:3px;top:0;font-family:var(--font-data);font-size:.62rem;color:var(--muted)}
+.cell.empty{opacity:.55}
+.tgrid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:700px){.tgrid{grid-template-columns:1fr}}
+.tcol{display:flex;flex-direction:column;gap:8px;min-width:0}
+.tcol h4{margin:0;font-family:var(--font-display);font-size:1.05rem}
+.prio{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;max-width:none}
+.prio li{display:grid;grid-template-columns:24px 1fr auto auto;gap:8px;align-items:center;border:1px solid var(--line);background:var(--bg);padding:6px 10px}
+.prio li .pn{font-family:var(--font-data);color:var(--muted)}
+.tag{font-size:.74rem;padding:1px 8px;border:1px solid var(--leaf);color:var(--leaf);white-space:nowrap}
+.tag.no{border-color:var(--bad);color:var(--bad)}
+.arr{display:flex;gap:4px}
+.arr button{width:30px;height:28px;background:var(--surface);border:1px solid var(--line);padding:0}
+.arr button:hover{border-color:var(--leaf)}
+.arr button:disabled{opacity:.35;cursor:default}
+/* ficha de trabalhador */
+.wcard{background:var(--surface);border:2px solid var(--gold);padding:16px;display:grid;grid-template-columns:150px 1fr;gap:16px;min-width:0}
+.wcard .portrait{background:var(--leaf-soft);display:flex;align-items:flex-end;justify-content:center;padding:8px;border:1px solid var(--line)}
+.wname{font-family:var(--font-display);font-size:1.3rem;font-weight:700;line-height:1.1}
+.rar{font-family:var(--font-data);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold)}
+.bars{display:grid;gap:7px;margin-top:8px}
+.bar{display:grid;grid-template-columns:92px 1fr 34px;align-items:center;gap:8px;font-size:.82rem}
+.bar i{display:block;height:10px;background:var(--line);position:relative}
+.bar i::after{content:"";position:absolute;inset:0;width:var(--v);background:var(--c)}
+.bar em{font-style:normal;font-family:var(--font-data);font-variant-numeric:tabular-nums;text-align:right}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{font-size:.78rem;border:1px solid var(--line);padding:2px 8px;background:var(--bg)}
+.chip.p{border-color:var(--leaf);color:var(--leaf);font-weight:600}
+.chip.s{border-color:var(--gold);color:var(--gold);font-weight:600}
+@media(max-width:560px){.wcard{grid-template-columns:1fr}.wcard .portrait{width:150px}}
+.layers{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
+.layer{border:1px solid var(--line);background:var(--surface);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.layer .who{font-family:var(--font-data);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase}
+.who.rnd{color:var(--gold)}.who.you{color:var(--leaf)}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px;max-width:none}
+.steps li{border:1px solid var(--line);background:var(--surface);padding:12px 14px;font-size:.92rem}
+.steps li b{display:block;font-family:var(--font-display);font-size:1.05rem;color:var(--leaf);margin-bottom:2px}
+/* linha do dia */
+.tl{display:flex;height:46px;border:2px solid var(--line);font-size:.74rem;font-family:var(--font-data)}
+.tl div{display:flex;align-items:center;justify-content:center;text-align:center;padding:0 4px;line-height:1.15}
+.tl .a{flex:2;background:var(--bg)}
+.tl .b{flex:9;background:var(--leaf);color:var(--bg);font-weight:600}
+.tl .c{flex:9;background:var(--night);color:#fff}
+.tm{display:flex;font-family:var(--font-data);font-size:.72rem;color:var(--muted);margin-top:4px}
+.tm span:nth-child(1){flex:2}.tm span:nth-child(2){flex:9}.tm span:nth-child(3){flex:9}.tm span:nth-child(4){text-align:right}
+.tbl-small td,.tbl-small th{padding:6px 12px}
+/* caixas */
+.odds{display:grid;gap:6px;font-size:.84rem;margin-top:6px}
+.odds div{display:grid;grid-template-columns:78px 1fr 48px;gap:8px;align-items:center}
+.odds i{display:block;height:12px;background:var(--line);position:relative}
+.odds i::after{content:"";position:absolute;inset:0;width:var(--v);background:var(--c)}
+.odds em{font-style:normal;font-family:var(--font-data);text-align:right;font-variant-numeric:tabular-nums}
+.chestwrap{display:flex;gap:14px;align-items:center}
+.chestwrap svg{flex:none;width:96px;height:auto}
+.roadmap{display:flex;flex-direction:column;gap:0;border-left:3px solid var(--line);margin-left:6px}
+.phase{padding:0 0 22px 22px;position:relative}
+.phase::before{content:"";position:absolute;left:-9px;top:6px;width:15px;height:15px;background:var(--bg);border:3px solid var(--leaf)}
+.phase.now::before{background:var(--gold);border-color:var(--gold)}
+.phase h3{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+.phase h3 small{font-family:var(--font-data);font-size:.72rem;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;font-weight:500}
+.q{display:flex;flex-direction:column;gap:10px;padding:0;list-style:none;max-width:none}
+.q li{background:var(--surface);border:1px solid var(--line);padding:12px 16px}
+.q b{color:var(--leaf)}
+.changed{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:8px 24px;padding:0;list-style:none;max-width:none}
+.changed li{padding-left:18px;position:relative;font-size:.95rem}
+.changed li::before{content:"";position:absolute;left:0;top:.6em;width:8px;height:8px;background:var(--leaf)}
+
+/* controles e janelas da demo */
+[hidden]{display:none!important}
+#stage3d:not(.spec) canvas{cursor:crosshair}
+#stage3d.spec canvas{cursor:grab}
+#hudbars{left:10px;top:34px;background:rgba(16,24,18,.75);color:#fff;padding:5px 10px;font-size:.72rem;display:grid;gap:4px}
+#hudbars div{display:grid;grid-template-columns:50px 90px;gap:6px;align-items:center}
+#hudbars div.one{display:block}
+#hudbars i{display:block;height:8px;background:rgba(255,255,255,.22);position:relative}
+#hudbars i::after{content:"";position:absolute;inset:0;width:var(--v,0%);background:var(--c,#4fd067)}
+#legend{right:10px;top:8px;background:rgba(16,24,18,.75);color:#fff;font-size:.7rem;padding:6px 10px;line-height:1.55;max-width:230px}
+#legend b{color:#f0bd42}
+#hint{left:50%;top:44px;transform:translateX(-50%);background:rgba(16,24,18,.85);color:#fff;padding:5px 12px;font-size:.78rem;white-space:nowrap}
+#prompt{left:50%;bottom:62px;transform:translateX(-50%);background:rgba(16,24,18,.88);color:#fff;border:1px solid #f0bd42;padding:4px 12px;font-size:.8rem;max-width:90%;text-align:center}
+#useBtn{right:10px;bottom:64px;display:none;flex-direction:column;gap:4px}
+@media (pointer:coarse){#useBtn{display:flex}}
+#stage3d.spec #useBtn{display:none}
+@media(max-width:700px){#legend{display:none}#hint{white-space:normal;width:80%;text-align:center}}
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:6px 18px;margin:0;font-size:.84rem}
+.keys div{display:flex;gap:10px;align-items:baseline;min-width:0}
+.keys dt{font-family:var(--font-data);font-size:.74rem;background:var(--bg);border:1px solid var(--line);padding:1px 7px;white-space:nowrap}
+.keys dd{margin:0;color:var(--muted)}
+#modal{position:absolute;inset:0;z-index:5;background:rgba(10,16,12,.93);color:#fff;overflow:auto;padding:14px;display:flex;justify-content:center;align-items:flex-start;user-select:none;-webkit-user-select:none}
+.mbox{width:min(100%,680px);display:flex;flex-direction:column;gap:10px}
+.mtop{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.mtop h3{color:#f0bd42}
+.mbox h4{margin:4px 0 0;font-family:var(--font-display);font-size:1rem;color:#cfe9c2}
+.mnote{font-size:.85rem;color:#cfd9cb;max-width:none}
+.mmsg{font-size:.85rem;color:#f0bd42;max-width:none}
+.mb{font-family:var(--font-display);font-weight:700;font-size:.85rem;background:#2f7a3f;border:2px solid #6cc27c;color:#fff;padding:5px 12px}
+.mb.alt{background:transparent;border-color:rgba(255,255,255,.4)}
+.mb:hover{background:#3d9650}
+.mb:disabled{opacity:.35;cursor:default}
+.mbs{display:inline-flex;gap:6px;flex-wrap:wrap}
+.mrow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid rgba(255,255,255,.2);padding:8px 10px;font-size:.88rem}
+.mrow>span:first-child{flex:1 1 240px;min-width:0}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+.mi{border:2px solid rgba(255,255,255,.3);background:rgba(255,255,255,.07);color:#fff;padding:6px 4px;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:.7rem;text-align:center;line-height:1.2}
+.mi svg{width:32px;height:32px}
+.mi b{font-weight:600}
+.mi span{color:#cfd9cb}
+.mi:hover{border-color:#6cc27c}
+.mi.on{border-color:#f0bd42;background:rgba(240,189,66,.25)}
+.mcols{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.mcols{grid-template-columns:1fr}}
+.mcol{display:flex;flex-direction:column;gap:8px;min-width:0}
+.mbar{display:flex;flex-direction:column;gap:3px;font-size:.78rem;color:#cfd9cb}
+.mbar i{display:block;height:9px;background:rgba(255,255,255,.2);position:relative}
+.mbar i::after{content:"";position:absolute;inset:0;width:var(--v);background:var(--c,#4fd067)}
+.mprio{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px;max-width:none}
+.mprio li{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1px solid rgba(255,255,255,.2);padding:5px 10px;font-size:.88rem}
+.mprio em{font-style:normal;font-size:.72rem;padding:1px 8px;border:1px solid #6cc27c;color:#6cc27c}
+.mprio em.no{border-color:#ef7b70;color:#ef7b70}
+</style>
+
+<div class="wrap">
+<header style="display:flex;flex-direction:column;gap:16px">
+  <span class="eyebrow">Documento de design · versão 0.5 · 24/10/2026</span>
+  <h1>Fazenda Infinita</h1>
+  <p class="lead">Um jogo de fazenda online em que você joga e monta uma equipe de trabalhadores que tocam a fazenda por você. Nome provisório. Nesta versão a demo já é jogável: você anda em primeira pessoa e pode assistir aos NPCs trabalhando em velocidade acelerada.</p>
+  <ul class="changed">
+    <li><b>Armazém</b> como prédio, com limite enorme; a colheita dos NPCs vai para lá.</li>
+    <li><b>Cozinha</b> na casa: batata assada.</li>
+    <li><b>Trabalhadores</b> sabem todas as tarefas; você liga ou desliga cada uma.</li>
+    <li><b>Descanso:</b> energia sobe aos poucos; comem comida pronta do armazém.</li>
+    <li><b>Sementes:</b> eles pegam sozinhos no armazém.</li>
+    <li><b>Prioridades:</b> ara e planta em sequência; só rega o que não dá para colher.</li>
+    <li><b>Painel T</b> com status e equipamento.</li>
+    <li><b>Só computador</b>, sem celular.</li>
+  </ul>
+  <nav class="toc" aria-label="Seções">
+    <a href="#camera">Demo</a><a href="#fazenda">Fazenda</a><a href="#personagem">Personagem</a><a href="#trabalhadores">Trabalhadores</a><a href="#regras">Plantas e tempo</a><a href="#economia">Economia</a><a href="#tecnica">Tecnologia</a><a href="#roteiro">Roteiro</a><a href="#duvidas">Decisões abertas</a>
+  </nav>
+</header>
+
+<section id="camera">
+  <span class="eyebrow">Demo jogável</span>
+  <h2>Primeira pessoa com sprites 2D</h2>
+  <p>Você vê a fazenda pelos olhos do personagem, num mundo 3D onde plantas e trabalhadores são desenhos de pixel art que sempre encaram você. A fazenda agora é cercada, tem portão e estrada. Os trabalhadores chegam pelo portão às 08:00, saem por ele às 17:00, e o céu muda do amanhecer escuro até a noite.</p>
+  <div class="frame">
+    <div id="stage3d" tabindex="0" role="group" aria-label="Cena 3D da fazenda em primeira pessoa. Clique para focar. W A S D andam, espaço usa o item, E interage, I abre o inventário, teclas 1 a 9 trocam de slot.">
+      <div class="msg" id="msg3d">Seu navegador não conseguiu abrir a cena 3D (WebGL indisponível).</div>
+      <div class="hud" id="hudtop"></div>
+      <div class="hud" id="hudbars"><div><span>Energia</span><i id="bEn"></i></div><div><span>Vida</span><i id="bHp"></i></div><div class="one" id="vPr"></div></div>
+      <div class="hud" id="legend">
+        <b>Controles</b><br>
+        <b>W A S D</b> andar<br>
+        <b>Mouse</b> olhar (clique na cena)<br>
+        <b>Esc</b> solta o mouse<br>
+        <b>Clique / Espaço</b> usar item<br>
+        <b>E</b> interagir<br>
+        <b>I</b> inventário<br>
+        <b>T</b> trabalhadores<br>
+        <b>1–9</b> hotbar<br>
+        <b>H</b> esconder esta lista
+      </div>
+      <div class="hud" id="hint" hidden>Clique na cena para controlar o mouse · Esc solta</div>
+      <div class="hud" id="prompt" hidden></div>
+      <div class="hud" id="cross"></div>
+      <div class="hud" id="hotbar"></div>
+      <div id="modal" hidden></div>
+    </div>
+    <div class="ctl">
+      <button class="btn" id="invBtn" type="button">Inventário (I)</button>
+      <button class="btn" id="useE" type="button">Interagir (E)</button>
+      <button class="btn" id="wkBtn" type="button">Trabalhadores (T)</button>
+      <button class="btn" id="exitAuto" type="button" hidden>Sair do modo automático (E)</button>
+      <span id="spdWrap" hidden style="display:inline-flex;gap:8px;align-items:center"><span class="lab">Velocidade</span>
+        <span class="seg" role="group" aria-label="Velocidade do tempo"><button type="button" data-m="1" aria-pressed="true">×1</button><button type="button" data-m="5" aria-pressed="false">×5</button><button type="button" data-m="15" aria-pressed="false">×15</button></span></span>
+      <button class="btn" id="legBtn" type="button">Controles (H)</button>
+      <button class="btn" id="resetBtn" type="button">Recomeçar</button>
+    </div>
+    <div class="status" id="msg3" role="status" aria-live="polite">Clique na cena para controlar o mouse. W A S D andam, clique usa o item da hotbar, E interage.</div>
+    <dl class="keys">
+      <div><dt>W A S D</dt><dd>Andar. Andar nunca gasta energia.</dd></div>
+      <div><dt>Mouse</dt><dd>Olhar. Clique na cena para esconder o cursor; Esc solta.</dd></div>
+      <div><dt>Clique ou Espaço</dt><dd>Usar o item da hotbar (gasta energia, exceto comer).</dd></div>
+      <div><dt>E</dt><dd>Interagir: casa (cozinha, dormir, automático), armazém, mercado, trabalhadores. Perto de algo aparece o aviso na tela.</dd></div>
+      <div><dt>I</dt><dd>Inventário e hotbar.</dd></div>
+      <div><dt>T</dt><dd>Status, equipamento e prioridades dos trabalhadores.</dd></div>
+      <div><dt>1 a 9</dt><dd>Escolher o slot da hotbar.</dd></div>
+    </dl>
+    <div class="wlist" id="wlist"></div>
+    <p class="cap"><b>Roteiro de teste (só computador):</b> (1) foice no slot 3: colha a primeira fileira, que já está pronta. (2) Fale com o <b>mercado</b> (E, perto da barraca vermelha) e venda as batatas, ou guarde no <b>armazém</b> (casinha ao norte da casa). (3) Pegue o regador, regue as outras fileiras e prepare mais solo com a enxada. (4) A partir das 08:00 os trabalhadores chegam pelo portão: aperte E perto de um deles para dar sementes e ferramentas e mudar as prioridades. (5) Aperte <b>T</b> para ver status e equipamento de cada trabalhador e ligar ou desligar tarefas. (6) Na <b>casa</b> (E na porta) há a cozinha, e a opção "Modo automático" e use ×5 ou ×15 para assistir. (7) Dê uma volta no dia inteiro e veja o céu escurecer.</p>
+  </div>
+  <div class="grid2">
+    <div class="card"><h3>O que a demo já tem</h3>
+      <ul>
+        <li>Cerca, portão e estrada; trabalhadores chegam às 08:00 e saem às 17:00.</li>
+        <li>Armazém (casinha) com limite enorme, mercado e casa com cozinha.</li>
+        <li>Painel T com status, equipamento e prioridades (com liga/desliga por tarefa).</li>
+        <li>Trabalhadores descansam recuperando energia, comem comida pronta do armazém e pegam sementes lá.</li>
+        <li>Céu e luz acompanham a hora do dia.</li>
+      </ul>
+    </div>
+    <div class="card"><h3>O que ainda falta</h3>
+      <ul>
+        <li>Equipamento com efeito (chapéu, camisa, bolsa, calça, sapato).</li>
+        <li>Ferramenta na mão e animações.</li>
+        <li>Mercado entre jogadores, servidor e salvar o jogo.</li>
+        <li>Sons e a arte final.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="fazenda">
+  <span class="eyebrow">Tamanho</span>
+  <h2>Uma fazenda grande</h2>
+  <p>Cada jogador começa com <b>100 solos</b> (10×10), todos seus, sem aluguel. Cada terreno extra acrescenta <b>50 solos</b>, custa mais que o anterior e cobra aluguel por dia. O mundo continua crescendo em blocos, então a fazenda pode chegar a milhares de solos.</p>
+  <div class="land-wrap">
+    <div class="landbox">
+      <div class="land" id="land" aria-label="Mapa de 100 solos; os 50 primeiros plantados"></div>
+      <div class="landx">+ Terreno 2: 50 solos · + Terreno 3: 50 solos · ...</div>
+    </div>
+    <div class="scroll"><table>
+      <thead><tr><th>Terreno</th><th>Solos</th><th>Compra (ex.)</th><th>Aluguel/dia (ex.)</th></tr></thead>
+      <tbody>
+        <tr><td>Inicial</td><td class="n">100</td><td class="n">grátis</td><td class="n">0</td></tr>
+        <tr><td>Terreno 2</td><td class="n">+50</td><td class="n">1.500</td><td class="n">30</td></tr>
+        <tr><td>Terreno 3</td><td class="n">+50</td><td class="n">2.250</td><td class="n">45</td></tr>
+        <tr><td>Terreno 4</td><td class="n">+50</td><td class="n">3.400</td><td class="n">68</td></tr>
+        <tr><td>Cada novo</td><td class="n">+50</td><td class="n">×1,5</td><td class="n">×1,5</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <p>Conta rápida: com batata a 5 de custo e 14 de venda, 50 solos rendem cerca de 450 de lucro a cada 6 dias (75 por dia). Um aluguel de 30 por dia deixa o terreno 2 lucrativo, mas sem folga, e pede trabalhadores bons. Os valores serão testados.</p>
+  <p>Você começa com 50 sementes e precisa comprar mais para encher os outros 50 solos. A cerca cresce junto com a fazenda: cada terreno comprado empurra o limite para fora.</p>
+</section>
+
+<section id="personagem">
+  <span class="eyebrow">Jogador e trabalhadores</span>
+  <h2>Equipamento, inventário e hotbar</h2>
+  <p>Todos os personagens usam o mesmo sistema de equipamento e inventário com limite de peso. A bolsa aumenta o limite. O jogador ainda tem uma hotbar, que é o que você vê na demo.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Equipamento</h3>
+      <div class="doll">
+        <div class="slot"><div class="box"><svg viewBox="0 0 32 32" data-i="hat"></svg></div><b>Chapéu</b>Palha<br>+10 energia máx.</div>
+        <div class="mid"><svg id="dollSprite" viewBox="0 0 108 135" width="104" role="img" aria-label="Jogador de chapéu de palha"></svg></div>
+        <div class="slot"><div class="box"><svg viewBox="0 0 32 32" data-i="bag"></svg></div><b>Bolsa</b>De pano<br>+8 kg</div>
+        <div class="slot"><div class="box"><svg viewBox="0 0 32 32" data-i="shirt"></svg></div><b>Camisa</b>De linho<br>+10 vida</div>
+        <div class="slot"><div class="box"><svg viewBox="0 0 32 32" data-i="pants"></svg></div><b>Calça</b>Reforçada<br>−5% custo de ação</div>
+        <div class="slot"><div class="box"><svg viewBox="0 0 32 32" data-i="boots"></svg></div><b>Sapato</b>Bota de couro<br>+8 velocidade</div>
+      </div>
+      <p class="cap">Exemplos. Cada peça tem versões comuns até épicas e pode ser vendida no mercado.</p>
+    </div>
+    <div class="card">
+      <h3>Inventário e hotbar</h3>
+      <div class="inv" id="invStatic"></div>
+      <div class="wbar"><span>Peso <em>7,0 / 20,0 kg</em> (12 base + 8 da bolsa)</span><i style="--v:35%"></i></div>
+      <p style="font-size:.9rem"><b>Hotbar</b> (9 slots, teclas 1 a 9):</p>
+      <div class="inv nine" id="hotStatic"></div>
+      <ul>
+        <li>Você arrasta itens do inventário para a hotbar. Ela mostra só atalhos; o item continua na mochila e conta no peso.</li>
+        <li>Clique usa o item do slot selecionado: enxada prepara, semente planta, regador rega, foice colhe.</li>
+        <li>Uma batata pesa 0,4 kg: colher 50 enche 20 kg. O que sobra vai para o armazém.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="trabalhadores">
+  <span class="eyebrow">O coração do jogo</span>
+  <h2>Trabalhadores</h2>
+  <p>Cada trabalhador tem três camadas separadas. Elas respondem a perguntas diferentes e vêm de lugares diferentes:</p>
+  <div class="layers">
+    <div class="layer"><span class="who rnd">Sorteado · fixo</span><h3>Níveis de ferramenta</h3><p>Enxada, regador, foice e plantio, de 0 a 100. Quanto maior, menos energia a ferramenta gasta. Caixas melhores sorteiam níveis maiores.</p></div>
+    <div class="layer"><span class="who rnd">Sorteado · fixo</span><h3>Habilidade especial</h3><p>Um efeito único, como "Mão Leve" ou "Pé de Vento". Quanto mais raro o trabalhador, mais habilidades e melhores. Não muda depois.</p></div>
+    <div class="layer"><span class="who you">Você decide</span><h3>Prioridades</h3><p>A ordem das tarefas: plantar, regar, preparar o solo, colher. É a parte estratégica, e pode mudar a qualquer hora.</p></div>
+  </div>
+  <div class="wcard">
+    <div class="portrait"><svg id="portrait" viewBox="0 0 108 135" width="120" role="img" aria-label="Trabalhador com chapéu de palha"></svg></div>
+    <div>
+      <div class="rar">Raro · Plantador</div>
+      <div class="wname">Tião Enxadão</div>
+      <div class="bars">
+        <div class="bar"><span>Vida</span><i style="--v:80%;--c:#d9534f"></i><em>80</em></div>
+        <div class="bar"><span>Energia</span><i style="--v:100%;--c:#3fa34d"></i><em>100</em></div>
+        <div class="bar"><span>Velocidade</span><i style="--v:58%;--c:#3b8fd9"></i><em>58</em></div>
+        <div class="bar"><span>Custo de ação</span><i style="--v:70%;--c:#c98a0a"></i><em>−35%</em></div>
+      </div>
+      <div class="chips">
+        <span class="chip s">Habilidade: Mão Leve (−10% energia)</span>
+        <span class="chip p">1º plantar · 2º regar</span>
+        <span class="chip">Enxada 62</span><span class="chip">Regador 40</span><span class="chip">Foice 21</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Regras de trabalho</h3>
+  <ul>
+    <li>Todo trabalhador sabe plantar, regar, preparar o solo e colher. Você pode desativar qualquer tarefa e reativar depois; precisa ter a ferramenta (e sementes) para ela valer.</li>
+    <li><b>Plantar</b> inclui preparar o solo: se há sementes e não há solo pronto, ele ara, planta, ara, planta.</li>
+    <li><b>Regar</b> só vale para o que ainda não dá para colher. Planta pronta é colhida, e só é regada se o trabalhador não puder colher.</li>
+    <li>Sem sementes na mochila, ele vai ao armazém buscar.</li>
+    <li>Sem energia, ele descansa. A energia sobe aos poucos, e ele volta ao trabalho com metade da barra.</li>
+  </ul>
+
+  <h3>Entregando ferramentas e prioridades</h3>
+  <p>Para o trabalhador agir, você abre a tela de troca. Clique num item para passar para o outro lado e reordene as prioridades com as setas. Tente: sem enxada ele não consegue preparar o solo.</p>
+  <div class="frame" id="trade">
+    <div class="ctl"><span class="lab">Quantidade por clique</span>
+      <span class="seg" role="group" aria-label="Quantidade por clique" id="qseg">
+        <button type="button" data-q="1" aria-pressed="true">1</button><button type="button" data-q="10" aria-pressed="false">10</button><button type="button" data-q="9999" aria-pressed="false">Tudo</button>
+      </span></div>
+    <div class="tgrid">
+      <div class="tcol"><h4>Sua mochila</h4><div class="inv" id="invMe"></div><div class="wbar" id="wMe"></div></div>
+      <div class="tcol"><h4>Mochila do Tião</h4><div class="inv" id="invTiao"></div><div class="wbar" id="wTiao"></div></div>
+    </div>
+    <div class="status" id="tradeStatus" role="status" aria-live="polite"></div>
+    <div class="tcol"><h4>Prioridades do Tião (a primeira que ele consegue fazer vale)</h4><ol class="prio" id="prio"></ol></div>
+  </div>
+  <p class="cap">O trabalhador escolhe a primeira tarefa da lista que consegue fazer agora: tem a ferramenta, tem energia, há um solo livre. Dois NPCs nunca pegam o mesmo solo, e ele para quando a energia fica abaixo de 15%. É exatamente o que acontece na demo lá em cima.</p>
+
+  <h3>Rascunho de habilidades especiais</h3>
+  <p>Uma lista inicial para sortear. Você disse que vamos listar todas depois, então isto é um ponto de partida para criticar e completar.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Habilidade</th><th>Efeito</th><th>Raridade mínima</th></tr></thead>
+    <tbody>
+      <tr><td><b>Mão Leve</b></td><td>−10% de energia em todas as ações</td><td>Incomum</td></tr>
+      <tr><td><b>Pé de Vento</b></td><td>+15% de velocidade</td><td>Comum</td></tr>
+      <tr><td><b>Costas Fortes</b></td><td>+6 kg de capacidade</td><td>Comum</td></tr>
+      <tr><td><b>Polegar Verde</b></td><td>8% de chance de colher 2 em vez de 1</td><td>Raro</td></tr>
+      <tr><td><b>Chuva Mansa</b></td><td>O regador molha 2 solos por ação</td><td>Raro</td></tr>
+      <tr><td><b>Mão Cuidadosa</b></td><td>Plantas regadas por ele têm metade do risco de morrer num dia seco seguinte</td><td>Raro</td></tr>
+      <tr><td><b>Semeador Ligeiro</b></td><td>Planta 25% mais rápido</td><td>Incomum</td></tr>
+      <tr><td><b>Terra Fofa</b></td><td>Enxada gasta 15% menos energia</td><td>Incomum</td></tr>
+      <tr><td><b>Pavio Longo</b></td><td>+20 de energia máxima</td><td>Incomum</td></tr>
+      <tr><td><b>Sono Leve</b></td><td>Recupera energia 25% mais rápido ao descansar</td><td>Comum</td></tr>
+      <tr><td><b>Trabalho em Dupla</b></td><td>+10% de velocidade perto de outro trabalhador</td><td>Épico</td></tr>
+      <tr><td><b>Incansável</b></td><td>Só para com 5% de energia</td><td>Épico</td></tr>
+    </tbody>
+  </table></div>
+  <p class="cap">Sugestão de quantidade por raridade: Comum 0 a 1, Incomum 1, Raro 1 a 2, Épico 2.</p>
+
+  <h3>Armazém (ferragem)</h3>
+  <p>Uma casinha na fazenda onde fica guardado o inventário grande: ferramentas, sementes, colheita e comida. Ao interagir com ela você vê tudo e passa itens entre a mochila e o armazém. O limite é muito grande, mas existe (na demo, 2.000 kg).</p>
+  <ul>
+    <li>Os trabalhadores guardam a colheita lá e pegam sementes lá, sozinhos.</li>
+    <li>Eles só comem comida pronta do armazém (pão e batata assada), nunca a colheita crua.</li>
+    <li>Quando um trabalhador é alugado, vendido ou devolvido, tudo que ele carrega vai para o armazém de quem deu os itens. Quem recebe o trabalhador sempre o recebe sem item algum.</li>
+    <li>Itens ficam no armazém sem estragar e sem peso para o personagem.</li>
+  </ul>
+
+  <h3>Alugar e vender trabalhadores</h3>
+  <p>Seu trabalhador é seu para sempre, mas você pode alugar ou vender. O dinheiro do aluguel fica guardado pelo servidor e é liberado dia a dia, o que torna a devolução simples.</p>
+  <ol class="steps">
+    <li><b>1 · Anúncio</b>O dono escolhe preço por dia e prazo máximo, e põe no mercado.</li>
+    <li><b>2 · Aluguel</b>O locatário paga tudo antes. O valor fica retido, os itens do dono vão para o armazém do dono e o trabalhador sai da fazenda.</li>
+    <li><b>3 · Trabalho</b>Ele trabalha na fazenda do locatário, que dá ferramentas e prioridades. A cada dia, a parte daquele dia vai para o dono.</li>
+    <li><b>4 · Volta</b>No fim do prazo, ou se o dono chamar antes. Os dias que sobraram são devolvidos ao locatário, e os itens dele vão para o armazém dele.</li>
+  </ol>
+</section>
+
+<section id="regras">
+  <span class="eyebrow">Regras da fazenda</span>
+  <h2>Plantas e tempo</h2>
+  <h3>A batata</h3>
+  <div class="stages" id="stages"></div>
+  <p>Todo dia o solo plantado precisa ser regado. Se não for, a planta não avança de estágio e ainda corre risco de morrer.</p>
+  <div class="scroll"><table class="tbl-small">
+    <thead><tr><th>Dias secos seguidos</th><th>Chance de morrer naquela noite</th><th>Chance de ainda estar viva</th></tr></thead>
+    <tbody>
+      <tr><td class="n">1</td><td class="n">10%</td><td class="n">90%</td></tr>
+      <tr><td class="n">2</td><td class="n">20%</td><td class="n">72%</td></tr>
+      <tr><td class="n">3</td><td class="n">30%</td><td class="n">50%</td></tr>
+      <tr><td class="n">4</td><td class="n">40%</td><td class="n">30%</td></tr>
+      <tr><td class="n">5</td><td class="n">50%</td><td class="n">15%</td></tr>
+      <tr><td class="n">10</td><td class="n">100%</td><td class="n">0%</td></tr>
+    </tbody>
+  </table></div>
+  <p class="cap">Entendi assim: a cada dia seco o sorteio acontece de novo e a chance sobe 10 pontos. Regar zera a contagem (confirmado).</p>
+
+  <h3>O dia do jogador e o expediente dos NPCs</h3>
+  <p>Cada jogador tem o seu próprio relógio, então ninguém espera ninguém. O dia vai das 06:00 às 02:00 e dura 15 minutos reais (uma hora de jogo dura 45 segundos). Os trabalhadores têm horário fixo: das 08:00 às 17:00, qualquer que seja a tarefa que sobrou. Eles chegam pelo portão da fazenda e saem por ele, andando pela estrada.</p>
+  <div>
+    <div class="tl" role="img" aria-label="Linha do dia: 06:00 a 08:00 você sozinho; 08:00 a 17:00 NPCs trabalham; 17:00 a 02:00 noite livre"><div class="a">você</div><div class="b">NPCs trabalham</div><div class="c">noite livre · desmaia às 02:00</div></div>
+    <div class="tm"><span>06:00</span><span>08:00</span><span>17:00</span><span>02:00</span></div>
+  </div>
+  <ul>
+    <li>Ao dormir, o jogador acorda às 06:00 do dia seguinte: as plantas avançam (ou sofrem o sorteio), os trabalhadores recuperam energia e o aluguel dos terrenos é cobrado.</li>
+    <li>Se chegar às 02:00 sem dormir, ele desmaia e acorda na cama com penalidade (sugestão: começa o dia com 70% de energia e 80% de vida). O trabalho dos NPCs não é afetado.</li>
+    <li>Dormir às 06:01 não é vantagem: os NPCs só começam às 08:00, e as plantas que ninguém regou ainda correm o risco de morrer. O custo de pular o dia é deixar a fazenda sem cuidado.</li>
+  </ul>
+
+  <h3>Energia e comida</h3>
+  <p>Andar nunca gasta energia. Usar ferramenta gasta (enxada 8, foice 5, regador 3, plantar 2) e, sem energia, você não consegue trabalhar. Comer devolve energia e vida: pão +30 e +10, batata assada +25 e +8 (feita na cozinha da casa com 2 batatas), batata crua +5 e +1. Dormir recupera tudo. Trabalhadores que ficam sem energia descansam: a energia sobe aos poucos e, enquanto isso, eles podem comer comida pronta do armazém.</p>
+
+  <h3>Modo automático (espectador)</h3>
+  <p>Uma opção em que só os NPCs trabalham. Você ativa na porta da casa e fica na tela de espectador, vendo a fazenda de cima, e pode acelerar o tempo. A velocidade vale para tudo ao mesmo tempo: o relógio, o andar e as ações dos NPCs. Em ×5, um dia de 15 minutos passa em 3 minutos e um ciclo completo da batata (6 dias) leva cerca de 18 minutos. Quando você quer conferir algo, volta ao modo normal na hora.</p>
+  <ul>
+    <li>Quem simula é o servidor, então a velocidade é honesta e ninguém a manipula. A demo usa ×1, ×5 e ×15.</li>
+    <li>Você ativa o modo automático pela casa. O personagem entra, acorda às 07:00 e dorme às 18:00, uma hora antes e depois dos trabalhadores, sem penalidade. Ao sair do modo, ele aparece na frente da casa.</li>
+    <li>Como o relógio só corre com o jogador conectado, a fazenda fica parada enquanto você está fora. O modo automático é o jeito de "render" sem jogar com as mãos.</li>
+  </ul>
+
+  <h3>Visitas (ideia para depois)</h3>
+  <p>Um amigo com permissão poderia assistir à sua fazenda como no modo espectador, mas só enquanto você estiver conectado. Se você estiver em ×5, ele vê em ×5. Ajudar, atrapalhar e PvP ficam para depois.</p>
+</section>
+
+<section id="economia">
+  <span class="eyebrow">O ponto mais delicado</span>
+  <h2>Economia, caixas e dinheiro real</h2>
+  <p>Moedas do jogo: <b>prata</b> (colheita, sementes, caixas básicas, aluguel, compras entre jogadores) e <b>ouro</b> (mais raro, abre as melhores caixas e pode ser trocado por prata entre jogadores). O mercado é onde todos negociam itens, ferramentas e trabalhadores usando as moedas do jogo, com uma taxa pequena por venda para tirar moeda de circulação.</p>
+  <div class="grid2">
+    <div class="card">
+      <h3>Caixas</h3>
+      <div class="chestwrap">
+        <svg id="chests" viewBox="0 0 200 70" role="img" aria-label="Dois baús: um com tiras de prata e outro com tiras de ouro"></svg>
+        <p style="font-size:.9rem">Sorteio só com moeda do jogo. A de ouro tem mais chance de trabalhadores e itens melhores.</p>
+      </div>
+      <div class="odds" aria-label="Chances de exemplo da caixa de ouro">
+        <div><span>Comum</span><i style="--v:40%;--c:#8a9aa8"></i><em>40%</em></div>
+        <div><span>Incomum</span><i style="--v:38%;--c:#3fa34d"></i><em>38%</em></div>
+        <div><span>Raro</span><i style="--v:17%;--c:#3b8fd9"></i><em>17%</em></div>
+        <div><span>Épico</span><i style="--v:5%;--c:#c98a0a"></i><em>5%</em></div>
+      </div>
+      <p class="cap">Exemplo da caixa de ouro. Mostre sempre as chances ao jogador.</p>
+    </div>
+    <div class="card">
+      <h3>O que precisa ficar em equilíbrio</h3>
+      <ul>
+        <li>Entra prata pelas vendas, sai por aluguel, sementes, caixas e taxas. Se entra muito mais do que sai, tudo perde valor.</li>
+        <li>Ferramentas e roupas com durabilidade evitam que os itens bons acumulem para sempre.</li>
+        <li>O aluguel dos terrenos extras e as taxas do mercado são as principais saídas de prata.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note warn"><b>Dinheiro real: o que já fica combinado e o que cuidar depois.</b><br>
+  1) <b>Só estético por enquanto.</b> Roupas e acessórios não mudam o poder do jogador. Se um dia vender itens com vantagem, o jogo pode virar "pague para ganhar", e muita gente larga um jogo assim.<br>
+  2) <b>Camisas de time.</b> "Parecida" com a do Grêmio ou do Inter ainda pode ser contestada se lembrar demais a marca: escudo, nome, patrocinadores ou o desenho exato das listras. O caminho mais seguro é licenciar com o clube, que é comum e rende acordos. Sem licença, use cores e desenhos próprios e evite o escudo e o nome.<br>
+  3) <b>Dinheiro entra, não sai.</b> Se o jogador pudesse transformar ouro em dinheiro de volta, o jogo passaria a ser tratado como serviço financeiro em vários países. Comprar ouro e roupas é comum; sacar não.<br>
+  4) <b>Menores de idade, impostos e lojas.</b> Antes de cobrar, vale uma conversa com um advogado e um contador. Steam e lojas de aplicativo ficam com uma parte das vendas.</p>
+</section>
+
+<section id="tecnica">
+  <span class="eyebrow">Como construir</span>
+  <h2>Tecnologia: navegador primeiro, Steam depois</h2>
+  <p>Aceito como combinamos: Three.js com TypeScript no navegador, e o mesmo jogo embrulhado para o Steam depois.</p>
+  <div class="grid2">
+    <div class="card"><h3>Cliente</h3>
+      <ul>
+        <li><b>Three.js + TypeScript</b>, a mesma base da demo acima.</li>
+        <li><b>Steam:</b> embrulhar com Electron ou Tauri e ligar o Steamworks. Vários jogos do Steam são feitos assim.</li>
+      </ul>
+    </div>
+    <div class="card"><h3>Servidor</h3>
+      <ul>
+        <li><b>Node.js + PostgreSQL</b>, usando o mesmo código de regras do jogo.</li>
+        <li>O servidor simula as plantas, os NPCs e o tempo acelerado, sorteia caixas e executa o mercado. O cliente só pede ações e desenha.</li>
+      </ul>
+    </div>
+  </div>
+  <p><b>Regra de ouro:</b> as regras do jogo (plantas, energia, trabalhadores, tempo, mercado) ficam num módulo separado da parte visual. A demo já está assim em pequeno: a lógica dos solos e dos NPCs não depende dos desenhos. Começa rodando no navegador do jogador e depois muda para o servidor sem reescrever.</p>
+</section>
+
+<section id="roteiro">
+  <span class="eyebrow">Por onde começar</span>
+  <h2>Roteiro em fases</h2>
+  <div class="roadmap">
+    <div class="phase now"><h3>Fase 0 <small>protótipo jogável · offline</small></h3><p>A demo desta página vira um projeto de verdade: primeira pessoa, hotbar, plantar/regar/colher, casa e cama, relógio, desmaio às 02:00, dois NPCs com prioridades e modo automático com aceleração.</p></div>
+    <div class="phase"><h3>Fase 1 <small>personagem e trabalhadores</small></h3><p>Atributos e energia do jogador, equipamento, inventário com peso, tela de troca, armazém, habilidades especiais e os níveis de ferramenta.</p></div>
+    <div class="phase"><h3>Fase 2 <small>economia local</small></h3><p>Prata e ouro, loja de sementes, caixas com sorteio, raridades, terrenos extras com aluguel. Ajuste dos números.</p></div>
+    <div class="phase"><h3>Fase 3 <small>online</small></h3><p>Contas, servidor, salvar na nuvem, a simulação (inclusive a aceleração) passando para o servidor.</p></div>
+    <div class="phase"><h3>Fase 4 <small>mercado</small></h3><p>Venda de itens e trabalhadores, aluguel com pagamento retido, taxas e histórico de preços.</p></div>
+    <div class="phase"><h3>Fase 5 <small>social</small></h3><p>Amigos, visitas como espectador, depois ajuda, atrapalho e empréstimo de trabalhadores.</p></div>
+    <div class="phase"><h3>Fase 6 <small>Steam, loja estética e PvP</small></h3><p>Versão para Steam, loja de roupas com dinheiro real, combate e novas plantas.</p></div>
+  </div>
+</section>
+
+<section id="duvidas">
+  <span class="eyebrow">Para você decidir</span>
+  <h2>Decisões abertas</h2>
+  <p>Já definidos: cozinha na casa, trabalhadores pegam sementes sozinhos, a cerca cresce com o terreno, só computador, descanso com energia voltando, todas as tarefas liberadas com liga/desliga, armazém em prédio com limite enorme.</p>
+  <ol class="q">
+    <li><b>Quando o trabalhador come:</b> hoje ele come quando a energia cai abaixo de 40% durante o descanso. Pode ser mais cedo ou só em emergência?</li>
+    <li><b>Voltar ao trabalho:</b> hoje ele volta com 50% de energia. Prefere 100% (mais lento) ou outro valor?</li>
+    <li><b>Quem faz a comida:</b> só você cozinha por enquanto. Quer um trabalhador cozinheiro depois, com a tarefa "Cozinhar"?</li>
+    <li><b>Limite do armazém:</b> 2.000 kg na demo. Quer outro valor ou limite por quantidade de itens?</li>
+    <li><b>Equipamento dos trabalhadores:</b> hoje só aparece no painel. Ele muda velocidade, custo de ação e peso na Fase 1; por enquanto você troca pela tela de troca?</li>
+  </ol>
+  <p><b>Fase 0:</b> iniciada como projeto Three.js com TypeScript, com as regras separadas da parte visual.</p>
+</section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  var NS='http://www.w3.org/2000/svg';
+  function el(tag,attrs,parent){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);if(parent)parent.appendChild(e);return e;}
+
+  /* ---------- pixel art: personagem e plantas ---------- */
+  var SPR=["....hhhh....","...hhhhhh...","..hhhhhhhh..","...ssssss...","...skssks...","...ssssss...","..tttttttt..",".stttttttts.",".stttttttts.","..tttttttt..","..pppppppp..","..pppppppp..","..pp....pp..","..bb....bb..",".bbb....bbb."];
+  var PAL_TIAO={h:'#e0b24a',s:'#f1c9a0',k:'#222',t:'#3b8fd9',p:'#4a4a6a',b:'#5b3a24'};
+  var PAL_ZECA={h:'#d9534f',s:'#e2b48a',k:'#222',t:'#3fa34d',p:'#3a3a52',b:'#5b3a24'};
+  var PAL_ME={h:'#e8e8e8',s:'#f1c9a0',k:'#222',t:'#c98a0a',p:'#2e2e44',b:'#3a2a1c'};
+  function sprite(parent,x,y,px,pal){
+    var g=el('g',{transform:'translate('+x+','+y+')','shape-rendering':'crispEdges'},parent);
+    SPR.forEach(function(row,r){for(var c=0;c<row.length;c++){var ch=row[c];if(ch==='.')continue;el('rect',{x:c*px,y:r*px,width:px+.3,height:px+.3,fill:pal[ch]},g);}});
+  }
+  var G1='#3f9a4c',G2='#2c7a3a',G3='#63b862',MD='#5b3a24',MD2='#6b4630';
+  var MOUND=[[-7,-1,14,3,MD],[-5,-2,10,1,MD2]];
+  var CROP=[
+    MOUND.concat([[-3,-3,2,2,'#d8b878'],[2,-3,2,2,'#d8b878']]),
+    MOUND.concat([[-1,-9,2,8,G2],[-6,-10,6,3,G1],[1,-12,6,3,G3]]),
+    MOUND.concat([[-1,-17,2,16,G2],[-10,-9,8,4,G1],[2,-12,9,4,G3],[-8,-15,7,4,G3],[1,-19,8,4,G1],[-3,-22,6,4,G3]]),
+    MOUND.concat([[-1,-17,2,16,G2],[-11,-9,9,4,G1],[2,-12,10,4,G3],[-9,-15,8,4,G3],[1,-19,8,4,G1],[-3,-22,6,4,G3],[-6,-24,3,3,'#fff'],[5,-22,3,3,'#fff'],[-8,-3,6,4,'#d8b26a'],[1,-4,7,5,'#d8b26a'],[-3,0,5,3,'#d8b26a'],[8,-28,2,6,'#f2c94c'],[6,-26,6,2,'#f2c94c']])
+  ];
+  function cropSvg(parent,x,y,stage,s){
+    var g=el('g',{transform:'translate('+x+','+y+') scale('+s+')','shape-rendering':'crispEdges'},parent);
+    CROP[stage].forEach(function(r){el('rect',{x:r[0],y:r[1],width:r[2],height:r[3],fill:r[4]},g);});
+  }
+
+  /* ---------- ícones de itens ---------- */
+  var ICON={
+    hoe:'<line x1="8" y1="27" x2="21" y2="8" stroke="#8a5a34" stroke-width="3" stroke-linecap="square"/><polygon points="17,5 28,9 24,15 15,10" fill="#9fb0bd"/>',
+    can:'<rect x="6" y="12" width="16" height="13" fill="#5b8fc9"/><polygon points="22,15 29,9 29,12 22,19" fill="#5b8fc9"/><path d="M8 12 Q14 4 20 12" stroke="#3d6a9e" stroke-width="2.5" fill="none"/>',
+    sickle:'<path d="M10 24 L12 12 Q13 5 25 6 Q17 9 16 14 L14 25 Z" fill="#9fb0bd"/><rect x="9" y="22" width="5" height="8" fill="#8a5a34"/>',
+    seed:'<path d="M6 12 L26 12 L24 28 L8 28 Z" fill="#b99a62"/><rect x="10" y="7" width="12" height="6" fill="#8a6c3a"/><circle cx="16" cy="20" r="3" fill="#e9dcae"/>',
+    potato:'<ellipse cx="16" cy="18" rx="10" ry="7" fill="#c9a15a"/><circle cx="12" cy="17" r="1.2" fill="#8a6c3a"/><circle cx="19" cy="20" r="1.2" fill="#8a6c3a"/>',
+    hat:'<ellipse cx="16" cy="21" rx="13" ry="4" fill="#e0b24a"/><rect x="9" y="10" width="14" height="11" fill="#e0b24a"/><rect x="9" y="17" width="14" height="3" fill="#a8742a"/>',
+    shirt:'<polygon points="10,6 22,6 29,12 25,17 22,14 22,28 10,28 10,14 7,17 3,12" fill="#3b8fd9"/>',
+    bag:'<rect x="7" y="11" width="18" height="17" fill="#8a5a34"/><rect x="9" y="6" width="14" height="6" fill="#a56e3f"/><rect x="13" y="16" width="6" height="5" fill="#e0b24a"/>',
+    pants:'<polygon points="8,5 24,5 26,28 18,28 16,14 14,28 6,28" fill="#4a4a6a"/>',
+    boots:'<path d="M9 6 H17 V18 L27 21 V27 H9 Z" fill="#5b3a24"/><rect x="9" y="25" width="18" height="2" fill="#2e2e44"/>'
+  };
+  document.querySelectorAll('svg[data-i]').forEach(function(s){s.innerHTML=ICON[s.getAttribute('data-i')];});
+  function iconSvg(n){return '<svg viewBox="0 0 32 32" aria-hidden="true">'+ICON[n]+'</svg>';}
+  function kg(n){return n.toFixed(1).replace('.',',');}
+
+  /* ---------- retratos ---------- */
+  sprite(document.getElementById('portrait'),0,0,9,PAL_TIAO);
+  sprite(document.getElementById('dollSprite'),0,0,9,PAL_ME);
+
+  /* ---------- estágios da batata ---------- */
+  var labels=[['Dia 1','Semente','Recém plantada, precisa de água.'],['Dias 2 e 3','Plantinha','Brotos pequenos.'],['Dias 4 e 5','Planta grande','Folhas cheias e flores.'],['Dia 6','Colher','Pronta para a foice.']];
+  var box=document.getElementById('stages');
+  labels.forEach(function(l,idx){
+    var d=document.createElement('div');d.className='stage';
+    var s=document.createElementNS(NS,'svg');s.setAttribute('viewBox','0 0 160 110');s.setAttribute('role','img');s.setAttribute('aria-label',l[1]);
+    el('rect',{x:0,y:0,width:160,height:110,fill:'#cfe9c2'},s);
+    el('polygon',{points:'80,98 134,84 80,70 26,84',fill:'#5e3f27'},s);
+    el('polygon',{points:'80,92 134,78 80,64 26,78',fill:'#7a5435'},s);
+    cropSvg(s,80,80,idx,2.2);
+    d.appendChild(s);
+    [['span','d',l[0]],['b','',l[1]],['span','t',l[2]]].forEach(function(a){var e=document.createElement(a[0]);if(a[1])e.className=a[1];e.textContent=a[2];d.appendChild(e);});
+    box.appendChild(d);
+  });
+
+  /* ---------- baús ---------- */
+  var cs=document.getElementById('chests');
+  [['#9fb0bd','#5f7080',0],['#f2c94c','#b8860b',100]].forEach(function(b){
+    var g=el('g',{transform:'translate('+(b[2]+8)+',4)','shape-rendering':'crispEdges'},cs);
+    el('rect',{x:0,y:22,width:84,height:42,fill:'#8a5a34'},g);
+    el('rect',{x:0,y:4,width:84,height:20,fill:'#a56e3f'},g);
+    el('rect',{x:4,y:0,width:76,height:6,fill:'#a56e3f'},g);
+    el('rect',{x:0,y:22,width:84,height:3,fill:'#5b3a24'},g);
+    el('rect',{x:12,y:0,width:9,height:64,fill:b[0]},g);
+    el('rect',{x:63,y:0,width:9,height:64,fill:b[0]},g);
+    el('rect',{x:12,y:58,width:9,height:6,fill:b[1]},g);
+    el('rect',{x:63,y:58,width:9,height:6,fill:b[1]},g);
+    el('rect',{x:34,y:18,width:16,height:14,fill:b[0]},g);
+    el('rect',{x:39,y:23,width:6,height:6,fill:b[1]},g);
+  });
+
+  /* ---------- mapa de solos ---------- */
+  var land=document.getElementById('land');
+  for(var n=0;n<100;n++){var c=document.createElement('i');if(n<50)c.className='p';land.appendChild(c);}
+
+  /* ---------- inventário e hotbar estáticos ---------- */
+  var inv0=document.getElementById('invStatic');
+  [['hoe',''],['can',''],['sickle',''],['seed','50']].forEach(function(a){var d=document.createElement('div');d.className='cell';d.innerHTML=iconSvg(a[0])+(a[1]?'<span class="q">'+a[1]+'</span>':'');inv0.appendChild(d);});
+  for(var e=0;e<8;e++){var x=document.createElement('div');x.className='cell empty';inv0.appendChild(x);}
+  var hot0=document.getElementById('hotStatic');
+  ['hoe','can','sickle','seed'].forEach(function(a,i){var d=document.createElement('div');d.className='cell'+(i===0?' sel':'');d.innerHTML=iconSvg(a)+'<span class="k">'+(i+1)+'</span>';hot0.appendChild(d);});
+  for(var h=5;h<=9;h++){var y=document.createElement('div');y.className='cell empty';y.innerHTML='<span class="k">'+h+'</span>';hot0.appendChild(y);}
+
+  /* ---------- tela de troca ---------- */
+  var T={
+    me:{cap:20,items:[{k:'enxada',n:'Enxada básica',w:2,q:1,i:'hoe'},{k:'regador',n:'Regador básico',w:1.5,q:1,i:'can'},{k:'foice',n:'Foice básica',w:1,q:1,i:'sickle'},{k:'semente',n:'Semente de batata',w:.05,q:50,i:'seed'},{k:'batata',n:'Batata',w:.4,q:6,i:'potato'}]},
+    tiao:{cap:12,items:[]}
+  };
+  var prio=[{n:'Plantar',need:'semente',nn:'sementes'},{n:'Regar',need:'regador',nn:'regador'},{n:'Preparar solo',need:'enxada',nn:'enxada'},{n:'Colher',need:'foice',nn:'foice'}];
+  var step=1,statusEl=document.getElementById('tradeStatus');
+  function weight(s){return T[s].items.reduce(function(a,b){return a+b.w*b.q;},0);}
+  function has(s,k){return T[s].items.some(function(i){return i.k===k&&i.q>0;});}
+  function move(from,to,key){
+    var src=T[from].items.filter(function(i){return i.k===key;})[0];if(!src)return;
+    var free=T[to].cap-weight(to);
+    var amt=Math.min(step,src.q,Math.floor((free+1e-9)/src.w));
+    if(amt<1){statusEl.textContent='Mochila cheia: '+src.n+' não cabe ('+kg(free)+' kg livres).';return;}
+    src.q-=amt;if(src.q===0)T[from].items.splice(T[from].items.indexOf(src),1);
+    var dst=T[to].items.filter(function(i){return i.k===key;})[0];
+    if(dst)dst.q+=amt;else T[to].items.push({k:src.k,n:src.n,w:src.w,q:amt,i:src.i});
+    statusEl.textContent=amt+' × '+src.n+' passou para '+(to==='tiao'?'o Tião':'a sua mochila')+'.';
+    render();
+  }
+  function renderInv(side,id,other){
+    var c=document.getElementById(id);c.innerHTML='';
+    T[side].items.forEach(function(it){
+      var b=document.createElement('button');b.type='button';b.className='cell';
+      b.setAttribute('aria-label',it.n+', '+it.q+' unidade(s). Passar para '+(other==='tiao'?'o Tião':'a sua mochila'));
+      b.title=it.n+' · '+kg(it.w)+' kg cada';
+      b.innerHTML=iconSvg(it.i)+(it.q>1?'<span class="q">'+it.q+'</span>':'');
+      b.addEventListener('click',function(){move(side,other,it.k);});
+      c.appendChild(b);
+    });
+    for(var k=T[side].items.length;k<12;k++){var d=document.createElement('div');d.className='cell empty';c.appendChild(d);}
+  }
+  function renderW(side,id,label){
+    var w=weight(side),cap=T[side].cap,pct=Math.min(100,w/cap*100);
+    var d=document.getElementById(id);d.innerHTML='';
+    var sp=document.createElement('span');sp.innerHTML=label+' <em></em>';sp.querySelector('em').textContent=kg(w)+' / '+kg(cap)+' kg';
+    var i=document.createElement('i');i.style.setProperty('--v',pct+'%');if(pct>90)i.style.setProperty('--c','var(--bad)');
+    d.appendChild(sp);d.appendChild(i);
+  }
+  function renderPrio(){
+    var ol=document.getElementById('prio');ol.innerHTML='';
+    prio.forEach(function(p,idx){
+      var li=document.createElement('li');
+      var no=document.createElement('span');no.className='pn';no.textContent=(idx+1)+'.';
+      var nm=document.createElement('span');nm.textContent=p.n;
+      var tg=document.createElement('span');var ok=has('tiao',p.need);tg.className='tag'+(ok?'':' no');tg.textContent=ok?'pronto':'falta '+p.nn;
+      var ar=document.createElement('span');ar.className='arr';
+      var up=document.createElement('button');up.type='button';up.textContent='▲';up.setAttribute('aria-label','Subir '+p.n);up.disabled=idx===0;
+      var dn=document.createElement('button');dn.type='button';dn.textContent='▼';dn.setAttribute('aria-label','Descer '+p.n);dn.disabled=idx===prio.length-1;
+      up.addEventListener('click',function(){var t=prio[idx-1];prio[idx-1]=prio[idx];prio[idx]=t;render();});
+      dn.addEventListener('click',function(){var t=prio[idx+1];prio[idx+1]=prio[idx];prio[idx]=t;render();});
+      ar.appendChild(up);ar.appendChild(dn);
+      [no,nm,tg,ar].forEach(function(x){li.appendChild(x);});ol.appendChild(li);
+    });
+  }
+  function render(){renderInv('me','invMe','tiao');renderInv('tiao','invTiao','me');renderW('me','wMe','Seu peso');renderW('tiao','wTiao','Peso dele');renderPrio();}
+  document.querySelectorAll('#qseg button').forEach(function(b){b.addEventListener('click',function(){
+    step=+b.getAttribute('data-q');document.querySelectorAll('#qseg button').forEach(function(o){o.setAttribute('aria-pressed',o===b?'true':'false');});});});
+  render();
+
+  /* ---------- cena 3D ---------- */
+  var host=document.getElementById('stage3d');
+  function fail(){document.getElementById('msg3d').style.display='flex';}
+  if(!window.THREE){fail();return;}
+  var renderer;
+  try{renderer=new THREE.WebGLRenderer({antialias:true});}catch(err){fail();return;}
+  var canvas=renderer.domElement;host.insertBefore(canvas,host.firstChild);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  var scene=new THREE.Scene();scene.background=new THREE.Color('#9fd4ef');scene.fog=new THREE.Fog('#9fd4ef',45,110);
+  var camera=new THREE.PerspectiveCamera(72,16/9,.1,160);camera.rotation.order='YXZ';
+  var amb=new THREE.AmbientLight(0xffffff,.85);scene.add(amb);
+  var sun=new THREE.DirectionalLight(0xffffff,.55);sun.position.set(6,12,4);scene.add(sun);
+
+  ICON.bread='<ellipse cx="16" cy="19" rx="12" ry="7" fill="#d9a05b"/><path d="M7 17 Q16 7 25 17" stroke="#a8742a" stroke-width="2" fill="none"/>';
+  ICON.baked='<ellipse cx="16" cy="20" rx="10" ry="7" fill="#b8793a"/><path d="M11 12 Q13 8 11 4 M18 12 Q20 8 18 4" stroke="#bbb" stroke-width="1.5" fill="none"/>';
+
+  var tints=[];
+  function tex(w,h,fn,smooth){
+    var c=document.createElement('canvas');c.width=w;c.height=h;var x=c.getContext('2d');fn(x);
+    var t=new THREE.CanvasTexture(c);t.generateMipmaps=false;
+    t.magFilter=smooth?THREE.LinearFilter:THREE.NearestFilter;t.minFilter=smooth?THREE.LinearFilter:THREE.NearestFilter;return t;
+  }
+  function bbMat(t,at){var m=new THREE.MeshBasicMaterial({map:t,transparent:true,alphaTest:at||.5,side:THREE.DoubleSide});tints.push(m);return m;}
+  var bills=[];
+  function billboard(mat,w,h,x,y,z){var m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),mat);m.position.set(x,y,z);scene.add(m);bills.push(m);return m;}
+  function lam(c){return new THREE.MeshLambertMaterial({color:c});}
+  function bx(w,h,d,mat,x,y,z,parent){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);(parent||scene).add(m);return m;}
+
+  /* ---------- céu ---------- */
+  var DN=[[360,'#56658f',.45,.15,.6],[420,'#e0a88a',.65,.35,.75],[510,'#9fd4ef',.85,.55,1],[960,'#9fd4ef',.85,.55,1],[1080,'#e8985e',.65,.3,.8],[1200,'#3b3f6b',.4,.1,.55],[1320,'#141a33',.28,.05,.4],[1560,'#0c1226',.25,.04,.35]];
+  var cA=new THREE.Color(),cB=new THREE.Color(),skyC=new THREE.Color(),nightF=0;
+  var starGeo=new THREE.BufferGeometry(),sp=[];
+  for(var q=0;q<260;q++){var th=Math.random()*6.283,ph=Math.random()*1.2+.1;sp.push(Math.cos(th)*Math.cos(ph)*90,Math.sin(ph)*90,Math.sin(th)*Math.cos(ph)*90);}
+  starGeo.setAttribute('position',new THREE.Float32BufferAttribute(sp,3));
+  var starMat=new THREE.PointsMaterial({color:0xffffff,size:2,sizeAttenuation:false,transparent:true,opacity:0,fog:false,depthWrite:false});
+  var stars=new THREE.Points(starGeo,starMat);stars.frustumCulled=false;scene.add(stars);
+  var winMat=new THREE.MeshBasicMaterial({color:0x9fd3ec}),winDay=new THREE.Color('#9fd3ec'),winNight=new THREE.Color('#ffd36b');
+  var clock=360;
+  function applyTime(){
+    var m=Math.max(360,Math.min(1560,clock)),k=0;
+    while(k<DN.length-2&&m>DN[k+1][0])k++;
+    var a=DN[k],b=DN[k+1],f=Math.max(0,Math.min(1,(m-a[0])/(b[0]-a[0])));
+    cA.set(a[1]);cB.set(b[1]);skyC.copy(cA).lerp(cB,f);
+    scene.background.copy(skyC);scene.fog.color.copy(skyC);
+    amb.intensity=a[2]+(b[2]-a[2])*f;sun.intensity=a[3]+(b[3]-a[3])*f;
+    var br=a[4]+(b[4]-a[4])*f;nightF=Math.max(0,Math.min(1,(.8-br)/.4));
+    tints.forEach(function(mt){mt.color.setRGB(br*(1-.12*nightF),br*(1-.05*nightF),br);});
+    starMat.opacity=nightF;winMat.color.copy(winDay).lerp(winNight,nightF);
+  }
+
+  /* ---------- chão, solos, estrada, cerca, portão ---------- */
+  var ground=new THREE.Mesh(new THREE.PlaneGeometry(220,220),lam(0x7fb35d));
+  ground.rotation.x=-Math.PI/2;ground.position.y=-.2;scene.add(ground);
+
+  var tileGeo=new THREE.BoxGeometry(.94,.2,.94);
+  var mRaw=lam(0x93c46b),mTill=lam(0x86613f),mDry=lam(0x6a4529),mWet=lam(0x36200f);
+  var cropMats=CROP.map(function(rects){return bbMat(tex(32,32,function(x){rects.forEach(function(r){x.fillStyle=r[4];x.fillRect(16+r[0],28+r[1],r[2],r[3]);});}));});
+  var CH=1.15,footOff=(32-28)/32*CH;
+  var tiles=[];
+  function tileAt(i,j){return (i>=0&&i<10&&j>=0&&j<10)?tiles[i*10+j]:null;}
+  function stageOf(a){return a>=5?3:(a>=3?2:(a>=1?1:0));}
+  function refresh(t){
+    t.mesh.material=t.state==='raw'?mRaw:(t.state==='tilled'?mTill:(t.wet?mWet:mDry));
+    if(t.state==='planted'){t.crop.visible=true;t.crop.material=cropMats[stageOf(t.age)];}else t.crop.visible=false;
+  }
+  for(var i=0;i<10;i++)for(var j=0;j<10;j++){
+    var tm=new THREE.Mesh(tileGeo,mRaw);tm.position.set(i,-.1,j);scene.add(tm);
+    var cr=billboard(cropMats[0],CH,CH,i,.02-footOff+CH/2,j);cr.visible=false;
+    tiles.push({i:i,j:j,state:'raw',age:0,wet:false,dry:0,reserved:null,mesh:tm,crop:cr});
+  }
+  function startFarm(){
+    tiles.forEach(function(t){t.state='raw';t.age=0;t.wet=false;t.dry=0;t.reserved=null;
+      if(t.j<3){t.state='planted';t.age=[5,3,1][t.j];}else if(t.j===3){t.state='tilled';}
+      refresh(t);});
+  }
+
+  function extra(cx,cz,w,d){
+    var g=new THREE.PlaneGeometry(w,d);
+    var m=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0xe8cf6a,transparent:true,opacity:.5}));m.rotation.x=-Math.PI/2;m.position.set(cx,.02,cz);scene.add(m);
+    var e=new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0xb8860b}));e.rotation.x=-Math.PI/2;e.position.set(cx,.03,cz);scene.add(e);
+  }
+  extra(12.5,4.5,5,10);extra(4.5,12.5,10,5);
+  function label(text,x,z,y,w,fs){
+    var t=tex(256,64,function(c){c.fillStyle='rgba(255,255,255,.88)';c.fillRect(0,10,256,44);c.fillStyle='#4a3a08';c.font='bold '+(fs||22)+'px monospace';c.textAlign='center';c.fillText(text,128,40);},true);
+    var m=new THREE.MeshBasicMaterial({map:t,transparent:true,side:THREE.DoubleSide});tints.push(m);
+    billboard(m,w||3.6,(w||3.6)/4,x,y||.9,z);
+  }
+  label('+50 solos · aluguel',12.5,4.5);label('+50 solos · aluguel',4.5,12.5);
+
+  var roadM=lam(0xc9ae7a);
+  function strip(cx,cz,w,d){var m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),roadM);m.rotation.x=-Math.PI/2;m.position.set(cx,.012,cz);scene.add(m);}
+  strip(-12.5,5,24,1.8);strip(-1.5,3.5,1.2,3.4);strip(-1.5,-1.4,1.2,2.8);
+
+  var FB={x0:-9,x1:17,z0:-9,z1:17},GZ0=4,GZ1=6;
+  var woodM=lam(0x8a6a42),postGeo=new THREE.BoxGeometry(.2,1,.2);
+  function post(x,z){var p=new THREE.Mesh(postGeo,woodM);p.position.set(x,.5,z);scene.add(p);}
+  function rail(a,b,c,d){[.35,.75].forEach(function(y){var along=(a===c);var len=Math.abs(along?d-b:c-a);bx(along?.07:len,.08,along?len:.07,woodM,(a+c)/2,y,(b+d)/2);});}
+  for(var fx=FB.x0;fx<=FB.x1;fx++){post(fx,FB.z0);post(fx,FB.z1);}
+  for(var fz=FB.z0+1;fz<FB.z1;fz++){post(FB.x1,fz);if(fz<GZ0||fz>GZ1)post(FB.x0,fz);}
+  rail(FB.x0,FB.z0,FB.x1,FB.z0);rail(FB.x0,FB.z1,FB.x1,FB.z1);rail(FB.x1,FB.z0,FB.x1,FB.z1);
+  rail(FB.x0,FB.z0,FB.x0,GZ0);rail(FB.x0,GZ1,FB.x0,FB.z1);
+  bx(.3,1.8,.3,woodM,FB.x0,.9,GZ0);bx(.3,1.8,.3,woodM,FB.x0,.9,GZ1);bx(.26,.24,2.6,woodM,FB.x0,1.78,5);
+  label('Fazenda Infinita',FB.x0-.05,5,2.35,2.6,24);
+  function leaf(z,sg){var g=new THREE.Group();g.position.set(FB.x0,0,z);bx(.07,.85,.95,woodM,0,.55,sg*.5,g);scene.add(g);return g;}
+  var leafA=leaf(GZ0+.14,1),leafB=leaf(GZ1-.14,-1),gateOpen=0;
+
+  /* casa, armazém e mercado */
+  var house=new THREE.Group();
+  bx(3,2.2,3,lam(0xe6d3a8),0,1.1,0,house);
+  var roof=new THREE.Mesh(new THREE.ConeGeometry(2.7,1.5,4),lam(0xb4503c));roof.rotation.y=Math.PI/4;roof.position.y=2.95;house.add(roof);
+  bx(.06,1.3,.8,lam(0x6b4429),1.52,.65,0,house);
+  var win=new THREE.Mesh(new THREE.BoxGeometry(.06,.6,.6),winMat);win.position.set(1.52,1.4,-1);house.add(win);
+  house.position.set(-3.5,0,2);scene.add(house);
+
+  var shed=new THREE.Group();
+  bx(2.6,1.8,2.6,lam(0x9a6b3d),0,.9,0,shed);
+  var sroof=new THREE.Mesh(new THREE.ConeGeometry(2.3,1.1,4),lam(0x3d6b45));sroof.rotation.y=Math.PI/4;sroof.position.y=2.35;shed.add(sroof);
+  bx(.06,1.3,1.1,lam(0x5b3a24),1.32,.65,0,shed);
+  shed.position.set(-3.5,0,-2.8);scene.add(shed);
+  label('Armazém',-3.5,-2.8,3.2,2,24);
+
+  var stall=new THREE.Group();
+  bx(2.2,.9,1,lam(0x8a5a34),0,.45,0,stall);
+  bx(.1,1.9,.1,woodM,-1.1,.95,.5,stall);bx(.1,1.9,.1,woodM,1.1,.95,.5,stall);
+  var awn=bx(2.7,.1,1.7,lam(0xc0463a),0,1.95,-.1,stall);awn.rotation.x=.18;
+  [[-.6,.97],[0,.99],[.6,.96]].forEach(function(p){bx(.38,.22,.34,lam(0xc9a15a),p[0],p[1]+.1,0,stall);});
+  stall.position.set(-5.5,0,7.2);scene.add(stall);
+  label('Mercado',-5.5,7.2,2.6,2,24);
+
+  var treeMat=bbMat(tex(32,40,function(x){x.fillStyle='#6b4429';x.fillRect(14,26,5,13);x.fillStyle='#2c7a3a';x.fillRect(5,12,22,15);x.fillRect(9,5,14,10);x.fillStyle='#3f9a4c';x.fillRect(8,10,10,8);x.fillRect(13,6,8,6);}));
+  [[-7,-6],[-7.5,-2],[3,-7],[9,-7],[15,-6],[16.2,2],[16.2,9],[16,15],[10,16],[-2,16],[-7,15],[-7,10.5],[1,-5],
+   [-12,2],[-14,8],[-11,9],[-13,0.5],[-18,8],[-19,2],[-22,6.5],[-15,-4],[22,4],[22,12],[5,24],[-5,24]].forEach(function(p){billboard(treeMat,2.2,2.75,p[0],1.37,p[1]);});
+
+  /* ---------- personagens ---------- */
+  function charMat(pal){var t=tex(16,16,function(x){SPR.forEach(function(row,r){for(var c=0;c<row.length;c++){var ch=row[c];if(ch==='.')continue;x.fillStyle=pal[ch];x.fillRect(c+2,r,1,1);}});});return bbMat(t,.02);}
+  function makeChar(pal,withBar){
+    var sm=new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.25});
+    var s=new THREE.Mesh(new THREE.CircleGeometry(.4,16),sm);s.rotation.x=-Math.PI/2;s.position.y=.03;scene.add(s);
+    var m=billboard(charMat(pal),1.6,1.6,0,.83,0);
+    var fill=null,bar=null;
+    if(withBar){
+      bar=new THREE.Mesh(new THREE.PlaneGeometry(.7,.1),new THREE.MeshBasicMaterial({color:0x223322}));
+      fill=new THREE.Mesh(new THREE.PlaneGeometry(.7,.1),new THREE.MeshBasicMaterial({color:0x4fd067}));fill.position.z=.002;
+      bar.add(fill);bar.position.set(0,.98,.01);m.add(bar);
+    }
+    return {m:m,s:s,sm:sm,fill:fill,bar:bar};
+  }
+
+  /* ---------- itens, inventário, armazém ---------- */
+  var ITEMS={enxada:{n:'Enxada',w:2,i:'hoe'},regador:{n:'Regador',w:1.5,i:'can'},foice:{n:'Foice',w:1,i:'sickle'},semente:{n:'Semente de batata',w:.05,i:'seed'},batata:{n:'Batata',w:.4,i:'potato'},pao:{n:'Pão',w:.3,i:'bread'},assada:{n:'Batata assada',w:.4,i:'baked'}};
+  var ORDER=['enxada','regador','foice','semente','batata','pao','assada'],STACK={semente:1,batata:1,pao:1,assada:1};
+  var CAP=20,SCAP=2000,SELL={batata:14},BUY={semente:5,pao:10},EAT={pao:[30,10],batata:[5,1],assada:[25,8]},FOOD_W=['assada','pao'];
+  var ECOST={enxada:8,semente:2,regador:3,foice:5};
+  function invW(inv){var s=0;ORDER.forEach(function(k){s+=(inv[k]||0)*ITEMS[k].w;});return s;}
+  function newInv(o){var r={};ORDER.forEach(function(k){r[k]=(o&&o[k])||0;});return r;}
+  var me={x:-.9,z:2,hp:100,en:100,prata:100,inv:newInv({enxada:1,regador:1,foice:1,semente:30})},yaw=-Math.PI/2,pitch=0;
+  var store=newInv({semente:20,pao:2});
+  var day=1,mult=1,mode='fp',SPAN=60/45;
+  var meChar=makeChar(PAL_ME,false);
+  var slots=['enxada','regador','foice','semente','batata','pao','assada',null,null],sel=0;
+
+  /* ---------- trabalhadores ---------- */
+  var COST={Plantar:2,Regar:3,Preparar:8,Colher:5};
+  var VERB={Plantar:'plantando',Regar:'regando',Preparar:'preparando o solo',Colher:'colhendo',Buscar:'pegando sementes no armazém'};
+  var NEED={Plantar:'semente',Regar:'regador',Preparar:'enxada',Colher:'foice'};
+  var NEEDN={semente:'sementes',regador:'regador',enxada:'enxada',foice:'foice'};
+  var GATE_IN={x:-1.2,z:5},ARM={x:-1.7,z:-2.8};
+  var EQNAMES=[['chapeu','Chapéu'],['camisa','Camisa'],['bolsa','Bolsa'],['calca','Calça'],['sapato','Sapato']];
+  function mkPrios(list){return list.map(function(a){return {k:a[0],on:a[1]};});}
+  function mkW(name,pal,cfg){var c=makeChar(pal,true);c.m.visible=false;c.s.visible=false;
+    return {name:name,c:c,cfg:cfg,prios:mkPrios(cfg.prios),inv:newInv(cfg.inv),cap:cfg.bolsa?20:12,hp:cfg.hp,vel:cfg.vel,lv:cfg.lv,sp:cfg.sp,equip:cfg.equip,cm:cfg.cm,
+      x:-17,z:5,rest:cfg.rest,energy:100,resting:false,eatT:0,task:null,phase:'',t:0,status:'em casa',moving:false,pres:'away',vis:false,wp:[]};}
+  var workers=[
+    mkW('Tião',PAL_TIAO,{hp:80,vel:58,lv:{plantio:55,regador:40,enxada:62,foice:21},sp:{n:'Mão Leve',d:'−10% de energia em todas as ações'},cm:-.15,bolsa:true,
+      equip:{chapeu:'Chapéu de palha',camisa:'Camisa de linho',bolsa:'Bolsa de pano',calca:'Calça reforçada',sapato:'Bota de couro'},
+      prios:[['Plantar',true],['Regar',true],['Preparar',true],['Colher',true]],inv:{semente:10,regador:1,enxada:1,foice:1},rest:{x:-1.6,z:6.6}}),
+    mkW('Zeca',PAL_ZECA,{hp:90,vel:57.5,lv:{plantio:25,regador:70,enxada:30,foice:45},sp:{n:'Pé de Vento',d:'+15% de velocidade'},cm:0,bolsa:false,
+      equip:{chapeu:'Chapéu de palha',camisa:null,bolsa:null,calca:null,sapato:null},
+      prios:[['Regar',true],['Colher',true],['Plantar',false],['Preparar',false]],inv:{regador:1,foice:1},rest:{x:-1.6,z:7.7}})
+  ];
+  var wl=document.getElementById('wlist'),wEls=[];
+  workers.forEach(function(w){var d=document.createElement('div');d.className='wi';d.innerHTML='<b></b><span class="p"></span><span class="s"></span>';wl.appendChild(d);wEls.push(d);d.querySelector('b').textContent=w.name;});
+
+  var msgEl=document.getElementById('msg3');
+  function msg(t){msgEl.textContent=t;}
+
+  /* ---------- hotbar ---------- */
+  var hb=document.getElementById('hotbar'),hbRef=[];
+  function buildHotbar(){
+    hb.innerHTML='';hbRef=[];
+    slots.forEach(function(key,idx){
+      var b=document.createElement('button');b.type='button';b.className='hb';b.tabIndex=-1;
+      b.innerHTML=(key?iconSvg(ITEMS[key].i):'')+'<i>'+(idx+1)+'</i><em></em>';
+      b.addEventListener('click',function(ev){ev.stopPropagation();sel=idx;updHotbar();});
+      hb.appendChild(b);hbRef.push({b:b,em:b.querySelector('em')});
+    });
+    updHotbar();
+  }
+  function updHotbar(){
+    slots.forEach(function(key,idx){
+      var r=hbRef[idx],q=key?me.inv[key]:0;
+      r.b.setAttribute('aria-pressed',idx===sel?'true':'false');
+      r.b.setAttribute('aria-label',key?ITEMS[key].n+', '+q:'Slot vazio '+(idx+1));
+      r.b.style.opacity=(key&&q<1)?.45:1;
+      r.em.hidden=!(key&&STACK[key]);r.em.textContent=q;
+    });
+  }
+
+  /* ---------- ações do jogador ---------- */
+  var hl=new THREE.Mesh(new THREE.PlaneGeometry(.98,.98),new THREE.MeshBasicMaterial({color:0xffe066,transparent:true,opacity:.4}));hl.rotation.x=-Math.PI/2;hl.visible=false;scene.add(hl);
+  function targetTile(){return tileAt(Math.round(me.x-Math.sin(yaw)*1.4),Math.round(me.z-Math.cos(yaw)*1.4));}
+  function spend(c){if(me.en<c){msg('Sem energia. Coma algo (pão, batata assada ou batata) ou vá dormir.');return false;}me.en-=c;return true;}
+  function useItem(){
+    var key=slots[sel];if(!key){msg('Slot vazio. Abra o inventário (I) e escolha um item para este slot.');return;}
+    if((me.inv[key]||0)<1){msg('Você não tem mais '+ITEMS[key].n.toLowerCase()+'.');return;}
+    if(EAT[key]){
+      if(me.en>=100&&me.hp>=100){msg('Você já está com energia e vida cheias.');return;}
+      me.inv[key]--;me.en=Math.min(100,me.en+EAT[key][0]);me.hp=Math.min(100,me.hp+EAT[key][1]);
+      msg('Você comeu: +'+EAT[key][0]+' energia, +'+EAT[key][1]+' vida.');updHotbar();return;
+    }
+    var t=targetTile();if(!t){msg('Nada à frente. Chegue perto dos solos.');return;}
+    if(key==='enxada'){if(t.state!=='raw'){msg(t.state==='tilled'?'Esse solo já está preparado.':'Há uma planta aqui.');return;}if(!spend(ECOST.enxada))return;t.state='tilled';msg('Solo preparado.');}
+    else if(key==='semente'){if(t.state==='raw'){msg('Prepare o solo com a enxada primeiro.');return;}if(t.state==='planted'){msg('Já tem uma planta aqui.');return;}if(!spend(ECOST.semente))return;me.inv.semente--;t.state='planted';t.age=0;t.wet=false;t.dry=0;msg('Semente plantada. Lembre de regar.');}
+    else if(key==='regador'){if(t.state!=='planted'){msg('Só se rega onde há planta.');return;}if(t.wet){msg('Já foi regada hoje.');return;}if(!spend(ECOST.regador))return;t.wet=true;msg('Regada.');}
+    else if(key==='foice'){
+      if(t.state!=='planted'){msg('Não há nada para colher aqui.');return;}
+      if(t.age<5){msg('Ainda não está pronta (dia '+(t.age+1)+' de 6).');return;}
+      if(invW(me.inv)+ITEMS.batata.w>CAP){msg('Mochila cheia. Guarde no armazém ou venda no mercado (E).');return;}
+      if(!spend(ECOST.foice))return;t.state='tilled';t.age=0;me.inv.batata++;msg('Você colheu 1 batata.');
+    }
+    refresh(t);updHotbar();
+  }
+
+  /* ---------- trabalhadores: comportamento ---------- */
+  function isOn(w,k){return w.prios.some(function(p){return p.k===k&&p.on;});}
+  function costOf(w,task){var lv={Plantar:w.lv.plantio,Regar:w.lv.regador,Preparar:w.lv.enxada,Colher:w.lv.foice}[task];return COST[task]*(1-lv/200)*(1+w.cm);}
+  function teamSeeds(){return workers.reduce(function(a,w){return a+(w.inv.semente||0);},me.inv.semente+store.semente);}
+  var ctx={empty:0,seeds:0};
+  function nearest(w,fn){
+    var best=null,bd=1e9;
+    for(var k=0;k<tiles.length;k++){var t=tiles[k];if(t.reserved&&t.reserved!==w)continue;if(!fn(t))continue;var dx=t.i-w.x,dz=t.j-w.z,d=dx*dx+dz*dz;if(d<bd){bd=d;best=t;}}
+    return best;
+  }
+  function canHarvest(w){return isOn(w,'Colher')&&w.inv.foice>0&&invW(store)+ITEMS.batata.w<=SCAP;}
+  function pick(w){
+    for(var p=0;p<w.prios.length;p++){
+      if(!w.prios[p].on)continue;
+      var n=w.prios[p].k,t=null;
+      if(n==='Plantar'){
+        if(w.inv.semente>0){
+          t=nearest(w,function(t){return t.state==='tilled';});if(t)return {name:'Plantar',tile:t};
+          if(w.inv.enxada>0&&isOn(w,'Preparar')){t=nearest(w,function(t){return t.state==='raw';});if(t)return {name:'Plantar',tile:t,till:true};}
+        }else if(store.semente>0&&invW(w.inv)+.5<=w.cap){
+          var can=nearest(w,function(t){return t.state==='tilled';})||((w.inv.enxada>0&&isOn(w,'Preparar'))?nearest(w,function(t){return t.state==='raw';}):null);
+          if(can)return {name:'Buscar',tile:null,pos:ARM};
+        }
+      }else if(n==='Regar'&&w.inv.regador>0){
+        var harv=canHarvest(w);
+        t=nearest(w,function(t){return t.state==='planted'&&!t.wet&&!(t.age>=5&&harv);});if(t)return {name:'Regar',tile:t};
+      }else if(n==='Preparar'&&w.inv.enxada>0&&ctx.seeds>ctx.empty){
+        t=nearest(w,function(t){return t.state==='raw';});if(t)return {name:'Preparar',tile:t};
+      }else if(n==='Colher'&&canHarvest(w)){
+        t=nearest(w,function(t){return t.state==='planted'&&t.age>=5;});if(t)return {name:'Colher',tile:t};
+      }
+    }
+    return null;
+  }
+  function idleReason(w){
+    var r=[],any=false;
+    w.prios.forEach(function(p){if(!p.on)return;any=true;
+      if(p.k==='Plantar'){if(!(w.inv.semente>0)&&!(store.semente>0)&&r.indexOf('sementes')<0)r.push('sementes');}
+      else{var n=NEED[p.k];if(!(w.inv[n]>0)&&r.indexOf(NEEDN[n])<0)r.push(NEEDN[n]);}});
+    if(!any)return 'parado: todas as tarefas desativadas';
+    return r.length?'parado: sem '+r.join(', '):'parado: nada para fazer agora';
+  }
+  function walk(w,tx,tz,dt,stop){
+    var dx=tx-w.x,dz=tz-w.z,d=Math.sqrt(dx*dx+dz*dz);
+    if(d<=stop+.001){w.moving=false;return true;}
+    var s=Math.min(2.4*(w.vel/50)*dt,d-stop);w.x+=dx/d*s;w.z+=dz/d*s;w.moving=true;return false;
+  }
+  function perform(w,task){
+    var t=task.tile,n=task.name;
+    if(n==='Buscar'){
+      var amt=Math.min(store.semente,Math.floor((w.cap-invW(w.inv))/ITEMS.semente.w),30);
+      if(amt>0){store.semente-=amt;w.inv.semente+=amt;}
+      return;
+    }
+    if(n==='Plantar'){
+      if(t.state==='raw'&&w.inv.enxada>0){t.state='tilled';w.energy-=costOf(w,'Preparar');}
+      if(t.state==='tilled'&&w.inv.semente>0){w.inv.semente--;t.state='planted';t.age=0;t.wet=false;t.dry=0;w.energy-=costOf(w,'Plantar');}
+    }else if(n==='Regar'){if(t.state==='planted'&&!t.wet){t.wet=true;w.energy-=costOf(w,'Regar');}}
+    else if(n==='Preparar'){if(t.state==='raw'){t.state='tilled';w.energy-=costOf(w,'Preparar');}}
+    else if(n==='Colher'){if(t.state==='planted'&&t.age>=5){t.state='tilled';t.age=0;store.batata++;w.energy-=costOf(w,'Colher');}}
+    w.energy=Math.max(0,w.energy);refresh(t);
+  }
+  function release(w){if(w.task){if(w.task.tile)w.task.tile.reserved=null;w.task=null;}}
+  function eatFor(w){
+    var k=null;
+    if(store.pao>0&&w.energy<=15)k='pao';else if(store.assada>0)k='assada';else if(store.pao>0)k='pao';
+    if(!k)return false;
+    store[k]--;w.energy=Math.min(100,w.energy+EAT[k][0]);w.hp=Math.min(100,w.hp+EAT[k][1]);w.eatT=2;w.status='comendo '+ITEMS[k].n.toLowerCase()+' do armazém';return true;
+  }
+  function npcStep(w,h){
+    if(w.pres==='away'){
+      if(clock>=480&&clock<1020){w.pres='in';w.x=-17;w.z=5;w.vis=true;w.wp=[{x:GATE_IN.x,z:GATE_IN.z}];w.task=null;w.status='chegando pela estrada';}
+      else{w.vis=false;return;}
+    }
+    if(w.pres==='out'){
+      w.status='indo embora pela estrada';
+      if(w.wp.length){if(walk(w,w.wp[0].x,w.wp[0].z,h,.1))w.wp.shift();}
+      else{w.pres='away';w.vis=false;w.moving=false;w.status='em casa';}
+      return;
+    }
+    if(clock>=1020){release(w);w.pres='out';w.wp=[{x:GATE_IN.x,z:GATE_IN.z},{x:-18,z:5}];return;}
+    if(w.wp.length){w.status='chegando pela estrada';if(walk(w,w.wp[0].x,w.wp[0].z,h,.1))w.wp.shift();return;}
+    if(w.eatT>0){w.eatT-=h;w.moving=false;return;}
+    if(!w.resting&&w.energy<=15){w.resting=true;release(w);}
+    if(w.resting){
+      w.energy=Math.min(100,w.energy+.667*h);
+      if(w.energy>=50){w.resting=false;}
+      else{
+        if(w.energy<40&&eatFor(w))return;
+        walk(w,w.rest.x,w.rest.z,h,.05);w.status='descansando, energia voltando ('+Math.round(w.energy)+'%)';return;
+      }
+    }
+    if(!w.task){
+      w.task=pick(w);
+      if(!w.task){walk(w,w.rest.x,w.rest.z,h,.05);w.status=idleReason(w);return;}
+      if(w.task.tile)w.task.tile.reserved=w;
+      w.phase='walk';w.t=0;
+    }
+    var tk=w.task,tx=tk.tile?tk.tile.i:tk.pos.x,tz=tk.tile?tk.tile.j:tk.pos.z;
+    if(w.phase==='walk'){
+      w.status=VERB[tk.name]+' (indo)';
+      if(walk(w,tx,tz,h,tk.tile?.7:.2)){w.phase='work';w.t=0;}
+    }else{
+      w.moving=false;w.status=VERB[tk.name];w.t+=h*(w.vel/50);
+      if(w.t>=(tk.till?2.4:1.3)){perform(w,tk);if(tk.tile)tk.tile.reserved=null;w.task=null;}
+    }
+  }
+
+  /* ---------- fim do dia ---------- */
+  function placeFront(){me.x=-.9;me.z=2;yaw=-Math.PI/2;pitch=0;}
+  function endDay(how){
+    var died=0;
+    tiles.forEach(function(t){
+      if(t.state==='planted'){
+        if(t.wet){t.age++;t.dry=0;}
+        else{t.dry++;if(Math.random()<Math.min(1,.1*t.dry)){t.state='tilled';t.age=0;t.dry=0;died++;}}
+      }
+      t.wet=false;t.reserved=null;refresh(t);
+    });
+    day++;clock=how==='auto'?420:360;
+    workers.forEach(function(w){w.energy=100;w.resting=false;w.eatT=0;w.task=null;w.pres='away';w.vis=false;w.wp=[];w.moving=false;w.status='em casa';w.x=-17;w.z=5;});
+    if(how==='desmaiou'){me.en=70;me.hp=Math.min(me.hp,80);}else{me.en=100;me.hp=100;}
+    placeFront();
+    msg((how==='desmaiou'?'Você desmaiou às 02:00 e acordou com 70% de energia e 80% de vida. ':how==='auto'?'Você foi dormir às 18:00 e acordou às 07:00. ':'Você dormiu e acordou às 06:00. ')+'Dia '+day+(died?' · '+died+' planta(s) morreram por falta de água.':'.'));
+  }
+  function simStep(h){
+    clock+=h*SPAN;
+    ctx.empty=0;tiles.forEach(function(t){if(t.state==='tilled')ctx.empty++;});ctx.seeds=teamSeeds();
+    workers.forEach(function(w){npcStep(w,h);});
+    if(mode==='spec'&&clock>=1080)endDay('auto');
+    else if(clock>=1560)endDay('desmaiou');
+  }
+
+  /* ---------- janelas ---------- */
+  var modalEl=document.getElementById('modal'),modal=null,tstep=1,tmsg='';
+  function H(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e;}
+  function mbtn(txt,fn,cls){var b=H('button','mb'+(cls?' '+cls:''),txt);b.type='button';b.addEventListener('click',fn);return b;}
+  function mbar(w,cap,unit){var d=H('div','mbar');var sp2=H('span','',kg(w)+' / '+kg(cap)+' kg');var i2=H('i');i2.style.setProperty('--v',Math.min(100,w/cap*100)+'%');if(w/cap>.9)i2.style.setProperty('--c','#ef7b70');d.appendChild(sp2);d.appendChild(i2);return d;}
+  function pbar(label,v,max,c){var d=H('div','mbar');d.appendChild(H('span','',label+' '+Math.round(v)));var i2=H('i');i2.style.setProperty('--v',Math.min(100,v/max*100)+'%');if(c)i2.style.setProperty('--c',c);d.appendChild(i2);return d;}
+  function itemGrid(inv,onPick){
+    var g=H('div','mgrid'),any=false;
+    ORDER.forEach(function(k){
+      var q=inv[k]||0;if(q<1)return;any=true;
+      var b=H('button','mi');b.type='button';b.innerHTML=iconSvg(ITEMS[k].i);
+      b.appendChild(H('b','',ITEMS[k].n));b.appendChild(H('span','',q+' · '+kg(ITEMS[k].w)+' kg'));
+      b.addEventListener('click',function(){onPick(k);});g.appendChild(b);
+    });
+    if(!any)g.appendChild(H('p','mnote','Vazia.'));
+    return g;
+  }
+  function stepRow(){
+    var sg=H('div','mrow');sg.appendChild(H('span','','Quantidade por clique'));var sbb=H('span','mbs');
+    [[1,'1'],[10,'10'],[9999,'Tudo']].forEach(function(o){sbb.appendChild(mbtn(o[1],function(){tstep=o[0];renderModal();},tstep===o[0]?'':'alt'));});
+    sg.appendChild(sbb);return sg;
+  }
+  function prioEditor(w){
+    var ol=H('ol','mprio');
+    w.prios.forEach(function(p,idx){
+      var li=H('li');
+      var cb=H('input');cb.type='checkbox';cb.checked=p.on;cb.setAttribute('aria-label','Permitir '+p.k);
+      cb.addEventListener('change',function(){p.on=cb.checked;renderModal();});
+      li.appendChild(cb);
+      li.appendChild(H('span','',(idx+1)+'. '+p.k+(p.on?'':' (desativado)')));
+      var ok,why;
+      if(!p.on){ok=false;why='desativado';}
+      else if(p.k==='Plantar'){ok=w.inv.semente>0||store.semente>0;why='sem sementes';}
+      else{var nd=NEED[p.k];ok=w.inv[nd]>0;why='falta '+NEEDN[nd];}
+      li.appendChild(H('em',ok?'ok':'no',ok?'pronto':why));
+      var ar=H('span','mbs');
+      var up=mbtn('▲',function(){var t=w.prios[idx-1];w.prios[idx-1]=w.prios[idx];w.prios[idx]=t;renderModal();},'alt');up.disabled=idx===0;up.setAttribute('aria-label','Subir '+p.k);
+      var dn=mbtn('▼',function(){var t=w.prios[idx+1];w.prios[idx+1]=w.prios[idx];w.prios[idx]=t;renderModal();},'alt');dn.disabled=idx===w.prios.length-1;dn.setAttribute('aria-label','Descer '+p.k);
+      ar.appendChild(up);ar.appendChild(dn);li.appendChild(ar);ol.appendChild(li);
+    });
+    return ol;
+  }
+  function workerCard(w){
+    var c=H('div','wc2');
+    var hd=H('div','mtop');hd.appendChild(H('h4','',w.name));hd.appendChild(H('span','mnote',(w.pres==='in'?'na fazenda':'fora (volta às 08:00)')+' · '+(w.status||'')));c.appendChild(hd);
+    var kv=H('div','kv');
+    kv.appendChild(H('span','','Vida '+Math.round(w.hp)));
+    kv.appendChild(H('span','','Velocidade '+Math.round(w.vel)));
+    kv.appendChild(H('span','','Custo de ação '+(w.cm>0?'+':'')+Math.round(w.cm*100)+'%'));
+    kv.appendChild(H('span','','Habilidade: '+w.sp.n+' ('+w.sp.d+')'));c.appendChild(kv);
+    c.appendChild(pbar('Energia',w.energy,100,w.energy>30?'#4fd067':'#e6a93a'));
+    var lv=H('div','kv');
+    [['enxada','Enxada'],['regador','Regador'],['foice','Foice'],['plantio','Plantio']].forEach(function(a){lv.appendChild(pbar(a[1],w.lv[a[0]],100,'#6aa8ff'));});
+    c.appendChild(lv);
+    var eq=H('div','eq');EQNAMES.forEach(function(a){var d=H('div');d.appendChild(H('b','',a[1]));d.appendChild(H('span','',w.equip[a[0]]||'—'));eq.appendChild(d);});c.appendChild(eq);
+    var items=ORDER.filter(function(k){return w.inv[k]>0;}).map(function(k){return w.inv[k]+' × '+ITEMS[k].n;});
+    c.appendChild(H('p','mnote','Mochila ('+kg(invW(w.inv))+' / '+kg(w.cap)+' kg): '+(items.length?items.join(', '):'vazia')));
+    c.appendChild(prioEditor(w));
+    var near=w.vis&&w.pres==='in'&&Math.hypot(me.x-w.x,me.z-w.z)<3.5;
+    var tb=mbtn(near?'Trocar itens':'Trocar itens (chegue perto)',function(){openModal('trade',w);});tb.disabled=!near;c.appendChild(tb);
+    return c;
+  }
+  function openModal(kind,data){
+    if(document.pointerLockElement)document.exitPointerLock();
+    for(var k in keys)keys[k]=0;
+    modal={kind:kind,data:data||null};tmsg='';renderModal();modalEl.hidden=false;
+  }
+  function closeModal(){modal=null;modalEl.hidden=true;host.focus({preventScroll:true});}
+  var TITLES={house:'Sua casa',shop:'Mercado',inv:'Inventário',store:'Armazém',workers:'Trabalhadores'};
+  function renderModal(){
+    if(!modal)return;
+    var box=H('div','mbox');modalEl.innerHTML='';modalEl.appendChild(box);
+    var top=H('div','mtop');top.appendChild(H('h3','',modal.kind==='trade'?'Trocar com '+modal.data.name:TITLES[modal.kind]));
+    top.appendChild(mbtn('Fechar (E)',closeModal,'alt'));box.appendChild(top);
+    if(modal.kind==='house'){
+      box.appendChild(H('p','mnote','Escolha o que fazer em casa.'));
+      var r1=H('div','mrow');r1.appendChild(H('span','','Dormir: passa para o próximo dia e você acorda às 06:00.'));
+      r1.appendChild(mbtn('Dormir',function(){closeModal();endDay('dormiu');}));box.appendChild(r1);
+      var r2=H('div','mrow');r2.appendChild(H('span','','Modo automático: você entra em casa e assiste. Acorda às 07:00 e dorme às 18:00, sem penalidade.'));
+      r2.appendChild(mbtn('Modo automático',function(){closeModal();enterAuto();}));box.appendChild(r2);
+      var r3=H('div','mrow');r3.appendChild(H('span','','Cozinha: batata assada (2 batatas da mochila ou do armazém): +25 energia, +8 vida. Os trabalhadores também comem do armazém.'));
+      var cb=mbtn('Cozinhar 1',cook);cb.disabled=(me.inv.batata+store.batata)<2;r3.appendChild(cb);box.appendChild(r3);
+      box.appendChild(H('p','mnote','Batatas: mochila '+me.inv.batata+' · armazém '+store.batata));
+    }else if(modal.kind==='shop'){
+      box.appendChild(H('p','mnote','Prata: '+me.prata+' · Peso '+kg(invW(me.inv))+' / '+kg(CAP)+' kg'));
+      var s1=H('div','mrow');s1.appendChild(H('span','','Batata (14 de prata): mochila '+me.inv.batata+' · armazém '+store.batata));
+      var sb=H('span','mbs');
+      sb.appendChild(mbtn('Vender 1',function(){sellPot(1);}));sb.appendChild(mbtn('Vender mochila',function(){sellPot(me.inv.batata);}));sb.appendChild(mbtn('Vender armazém',sellStore));
+      s1.appendChild(sb);box.appendChild(s1);
+      [['semente','Semente de batata (5 de prata)',[1,10]],['pao','Pão (10 de prata): +30 energia, +10 vida',[1]]].forEach(function(b){
+        var r=H('div','mrow');r.appendChild(H('span','',b[1]+' · você tem '+me.inv[b[0]]));var bs=H('span','mbs');
+        b[2].forEach(function(n){bs.appendChild(mbtn('Comprar '+n,function(){buy(b[0],n);}));});r.appendChild(bs);box.appendChild(r);
+      });
+    }else if(modal.kind==='inv'){
+      box.appendChild(H('p','mnote','Clique num item para colocá-lo no slot selecionado da hotbar ('+(sel+1)+'). Os 9 slots abaixo mostram a hotbar.'));
+      var hr=H('div','mgrid mhot');
+      slots.forEach(function(k,idx){var b=H('button','mi'+(idx===sel?' on':''));b.type='button';b.innerHTML=(k?iconSvg(ITEMS[k].i):'<svg viewBox="0 0 32 32"></svg>');b.appendChild(H('span','',(idx+1)+(k?' · '+ITEMS[k].n:' · vazio')));
+        b.addEventListener('click',function(){sel=idx;updHotbar();renderModal();});hr.appendChild(b);});
+      box.appendChild(hr);
+      box.appendChild(H('h4','','Mochila'));
+      box.appendChild(itemGrid(me.inv,function(k){slots[sel]=k;buildHotbar();tmsg=ITEMS[k].n+' no slot '+(sel+1)+'.';renderModal();}));
+      box.appendChild(mbar(invW(me.inv),CAP));
+      box.appendChild(H('p','mnote','Equipamento (ainda sem efeito no jogador): chapéu de palha, camisa de linho, bolsa de pano (+8 kg), calça reforçada, bota de couro.'));
+      box.appendChild(mbtn('Limpar slot '+(sel+1),function(){slots[sel]=null;buildHotbar();renderModal();},'alt'));
+    }else if(modal.kind==='store'){
+      box.appendChild(H('p','mnote','Tudo que está no armazém. O limite é muito grande ('+kg(SCAP)+' kg). Os trabalhadores pegam sementes daqui e guardam a colheita aqui. Eles comem só comida pronta (pão e batata assada).'));
+      box.appendChild(stepRow());
+      var cols=H('div','mcols');
+      var c1=H('div','mcol');c1.appendChild(H('h4','','Sua mochila'));c1.appendChild(itemGrid(me.inv,function(k){xfer(me.inv,store,SCAP,k);}));c1.appendChild(mbar(invW(me.inv),CAP));
+      var c2=H('div','mcol');c2.appendChild(H('h4','','Armazém'));c2.appendChild(itemGrid(store,function(k){xfer(store,me.inv,CAP,k);}));c2.appendChild(mbar(invW(store),SCAP));
+      cols.appendChild(c1);cols.appendChild(c2);box.appendChild(cols);
+    }else if(modal.kind==='workers'){
+      box.appendChild(H('p','mnote','Status, equipamento e prioridades de cada trabalhador. Marque a caixa para permitir ou impedir uma tarefa. Todos sabem fazer todas as tarefas.'));
+      workers.forEach(function(w){box.appendChild(workerCard(w));});
+    }else if(modal.kind==='trade'){
+      var w=modal.data;
+      box.appendChild(H('p','mnote','Energia '+Math.round(w.energy)+'% · '+(w.status||'')));
+      box.appendChild(stepRow());
+      var cols2=H('div','mcols');
+      var d1=H('div','mcol');d1.appendChild(H('h4','','Sua mochila'));d1.appendChild(itemGrid(me.inv,function(k){xfer(me.inv,w.inv,w.cap,k);}));d1.appendChild(mbar(invW(me.inv),CAP));
+      var d2=H('div','mcol');d2.appendChild(H('h4','','Mochila de '+w.name));d2.appendChild(itemGrid(w.inv,function(k){xfer(w.inv,me.inv,CAP,k);}));d2.appendChild(mbar(invW(w.inv),w.cap));
+      cols2.appendChild(d1);cols2.appendChild(d2);box.appendChild(cols2);
+      box.appendChild(H('h4','','Prioridades (a primeira que ele consegue fazer vale)'));
+      box.appendChild(prioEditor(w));
+      box.appendChild(H('p','mnote','Plantar já inclui preparar o solo quando não há solo pronto: ele ara, planta, ara, planta. Rega só quando não dá para colher.'));
+    }
+    if(tmsg)box.appendChild(H('p','mmsg',tmsg));
+  }
+  function xfer(from,to,capTo,key){
+    var q=from[key]||0;if(q<1)return;
+    var free=capTo-invW(to),amt=Math.min(tstep,q,Math.floor((free+1e-9)/ITEMS[key].w));
+    if(amt<1){tmsg='Cheio: '+ITEMS[key].n+' não cabe ('+kg(free)+' kg livres).';}
+    else{from[key]-=amt;to[key]=(to[key]||0)+amt;tmsg=amt+' × '+ITEMS[key].n+' transferido(s).';}
+    updHotbar();renderModal();
+  }
+  function cook(){
+    if(me.inv.batata+store.batata<2){tmsg='Precisa de 2 batatas (mochila ou armazém).';renderModal();return;}
+    var fromBag=Math.min(2,me.inv.batata);me.inv.batata-=fromBag;store.batata-=2-fromBag;
+    if(invW(me.inv)+ITEMS.assada.w<=CAP){me.inv.assada++;tmsg='Você cozinhou 1 batata assada (na mochila).';}
+    else{store.assada++;tmsg='Mochila cheia: a batata assada foi para o armazém.';}
+    updHotbar();renderModal();
+  }
+  function sellPot(n){n=Math.min(n,me.inv.batata);if(n<1){tmsg='Você não tem batatas na mochila.';renderModal();return;}me.inv.batata-=n;me.prata+=n*SELL.batata;tmsg='Vendeu '+n+' batata(s) por '+n*SELL.batata+' de prata.';updHotbar();renderModal();}
+  function sellStore(){if(store.batata<1){tmsg='O armazém está sem batatas.';renderModal();return;}var n=store.batata;store.batata=0;me.prata+=n*SELL.batata;tmsg='Vendeu '+n+' batata(s) do armazém por '+n*SELL.batata+' de prata.';renderModal();}
+  function buy(k,n){
+    var cost=BUY[k]*n;
+    if(me.prata<cost){tmsg='Prata insuficiente.';}
+    else if(invW(me.inv)+ITEMS[k].w*n>CAP){tmsg='Não cabe na mochila ('+kg(CAP-invW(me.inv))+' kg livres).';}
+    else{me.prata-=cost;me.inv[k]+=n;tmsg='Comprou '+n+' × '+ITEMS[k].n+'.';}
+    updHotbar();renderModal();
+  }
+
+  /* ---------- interação com a tecla E ---------- */
+  function nearby(){
+    var best=null,bd=1e9;
+    function consider(c,x,z,r){var d=Math.hypot(me.x-x,me.z-z);if(d<r&&d<bd){bd=d;best=c;}}
+    consider({k:'house',label:'Entrar em casa (dormir, cozinha, modo automático)'},-1.8,2,2.3);
+    consider({k:'store',label:'Armazém (ver e guardar itens)'},-1.7,-2.8,2.2);
+    consider({k:'shop',label:'Mercado (vender e comprar)'},-5.5,6.1,2.3);
+    workers.forEach(function(w){if(w.vis&&w.pres==='in'&&!w.wp.length)consider({k:'trade',w:w,label:'Trocar itens e prioridades com '+w.name},w.x,w.z,2.4);});
+    return best;
+  }
+  function interact(){
+    if(modal){closeModal();return;}
+    if(mode==='spec'){exitAuto();return;}
+    var n=nearby();
+    if(!n){msg('Nada para interagir aqui. Chegue perto da casa, do armazém, do mercado ou de um trabalhador.');return;}
+    if(n.k==='trade')openModal('trade',n.w);else openModal(n.k);
+  }
+
+  /* ---------- modos ---------- */
+  var yawS=Math.PI*.2,tiltS=40*Math.PI/180,TGT=new THREE.Vector3(3.5,0,4),DIST=28;
+  var exitBtn=document.getElementById('exitAuto'),speedWrap=document.getElementById('spdWrap'),speedBtns=document.querySelectorAll('#spdWrap button');
+  function setMult(m){mult=m;speedBtns.forEach(function(b){b.setAttribute('aria-pressed',(+b.getAttribute('data-m')===m)?'true':'false');});}
+  function setMode(m){
+    mode=m;host.classList.toggle('spec',m==='spec');
+    camera.fov=m==='spec'?36:72;camera.updateProjectionMatrix();
+    meChar.m.visible=false;meChar.s.visible=false;hl.visible=false;
+    speedWrap.hidden=m!=='spec';exitBtn.hidden=m!=='spec';
+    if(m!=='spec')setMult(1);
+  }
+  function enterAuto(){
+    if(clock>=1080)endDay('auto');else if(clock<420)clock=420;
+    setMode('spec');
+    msg('Modo automático: você está em casa e só assiste. Arraste para girar a câmera. Escolha a velocidade.');
+  }
+  function exitAuto(){setMode('fp');placeFront();msg('Você saiu de casa e voltou ao modo normal.');}
+  exitBtn.addEventListener('click',exitAuto);
+  speedBtns.forEach(function(b){b.addEventListener('click',function(){if(mode==='spec')setMult(+b.getAttribute('data-m'));});});
+  document.getElementById('invBtn').addEventListener('click',function(){if(mode==='fp'&&!modal)openModal('inv');});
+  document.getElementById('wkBtn').addEventListener('click',function(){if(!modal)openModal('workers');});
+  document.getElementById('useE').addEventListener('click',interact);
+  document.getElementById('legBtn').addEventListener('click',function(){legend.hidden=!legend.hidden;});
+  function resetAll(){
+    day=1;clock=360;me.prata=100;me.hp=100;me.en=100;me.inv=newInv({enxada:1,regador:1,foice:1,semente:30});
+    store=newInv({semente:20,pao:2});
+    slots=['enxada','regador','foice','semente','batata','pao','assada',null,null];sel=0;
+    workers.forEach(function(w){var c=w.cfg;w.prios=mkPrios(c.prios);w.inv=newInv(c.inv);w.energy=100;w.hp=c.hp;w.resting=false;w.eatT=0;w.task=null;w.pres='away';w.vis=false;w.wp=[];w.status='em casa';w.x=-17;w.z=5;});
+    startFarm();placeFront();buildHotbar();setMode('fp');if(modal)closeModal();msg('Fazenda recomeçada no dia 1.');
+  }
+  document.getElementById('resetBtn').addEventListener('click',resetAll);
+  var legend=document.getElementById('legend');
+
+  /* ---------- entrada: teclado e mouse travado ---------- */
+  var keys={f:0,b:0,l:0,r:0,tl:0,tr:0},locked=false,lockFailed=false,drag=null;
+  var KEYMAP={w:'f',s:'b',a:'l',d:'r',arrowup:'f',arrowdown:'b',arrowleft:'tl',arrowright:'tr'};
+  document.addEventListener('keydown',function(e){
+    var act=modal||locked||document.activeElement===host;if(!act)return;
+    var k=e.key.toLowerCase();
+    if(modal){if(e.target&&e.target.tagName==='INPUT'&&k===' ')return;if(k==='escape'||k==='e'||k==='i'||k==='t'){closeModal();e.preventDefault();}return;}
+    if(KEYMAP[k]){if(mode==='fp')keys[KEYMAP[k]]=1;e.preventDefault();}
+    else if(k===' '){if(mode==='fp')useItem();e.preventDefault();}
+    else if(k==='e'){interact();e.preventDefault();}
+    else if(k==='i'){if(mode==='fp')openModal('inv');e.preventDefault();}
+    else if(k==='t'){openModal('workers');e.preventDefault();}
+    else if(k==='h'){legend.hidden=!legend.hidden;}
+    else if(k>='1'&&k<='9'){if(mode==='fp'){sel=+k-1;updHotbar();}}
+  });
+  document.addEventListener('keyup',function(e){var k=e.key.toLowerCase();if(KEYMAP[k])keys[KEYMAP[k]]=0;});
+  host.addEventListener('blur',function(){if(!locked)for(var k in keys)keys[k]=0;});
+  var hintEl=document.getElementById('hint');
+  document.addEventListener('pointerlockchange',function(){locked=document.pointerLockElement===canvas;});
+  document.addEventListener('pointerlockerror',function(){lockFailed=true;});
+  document.addEventListener('mousemove',function(e){
+    if(locked&&mode==='fp'&&!modal){yaw-=e.movementX*.0025;pitch=Math.max(-1.2,Math.min(1.2,pitch-e.movementY*.0025));}
+  });
+  document.addEventListener('mousedown',function(e){if(locked&&e.button===0&&mode==='fp'&&!modal)useItem();});
+  canvas.addEventListener('pointerdown',function(e){
+    host.focus({preventScroll:true});
+    if(modal)return;
+    if(mode==='fp'&&!locked&&!lockFailed){
+      try{var p=canvas.requestPointerLock();if(p&&p.catch)p.catch(function(){lockFailed=true;});}catch(err){lockFailed=true;}
+      return;
+    }
+    if(locked)return;
+    drag={x:e.clientX,y:e.clientY,moved:0};canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove',function(e){
+    if(!drag)return;
+    var dx=e.clientX-drag.x,dy=e.clientY-drag.y;drag.x=e.clientX;drag.y=e.clientY;drag.moved+=Math.abs(dx)+Math.abs(dy);
+    if(mode==='fp'){yaw-=dx*.005;pitch=Math.max(-1.2,Math.min(1.2,pitch-dy*.005));}
+    else{yawS-=dx*.006;tiltS=Math.max(.3,Math.min(1.3,tiltS+dy*.005));}
+  });
+  canvas.addEventListener('pointerup',function(){if(drag&&drag.moved<6&&mode==='fp'&&!modal)useItem();drag=null;});
+  canvas.addEventListener('pointercancel',function(){drag=null;});
+
+  var BLOCK=[[-5.3,-1.7,.2,3.8],[-6.9,-4.1,6.4,8.1],[-5.1,-1.9,-4.3,-1.3]];
+  function movePlayer(dt){
+    var f=keys.f-keys.b,s=keys.r-keys.l,turn=keys.tl-keys.tr;
+    yaw+=turn*1.9*dt;
+    if(f||s){
+      var fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
+      var vx=fx*f+rx*s,vz=fz*f+rz*s,len=Math.sqrt(vx*vx+vz*vz)||1;
+      me.x+=vx/len*3.4*dt;me.z+=vz/len*3.4*dt;
+      me.x=Math.max(FB.x0+.6,Math.min(FB.x1-.6,me.x));me.z=Math.max(FB.z0+.6,Math.min(FB.z1-.6,me.z));
+      BLOCK.forEach(function(b){
+        if(me.x>b[0]&&me.x<b[1]&&me.z>b[2]&&me.z<b[3]){
+          var dl=me.x-b[0],dr=b[1]-me.x,dt2=me.z-b[2],db=b[3]-me.z,m=Math.min(dl,dr,dt2,db);
+          if(m===dl)me.x=b[0];else if(m===dr)me.x=b[1];else if(m===dt2)me.z=b[2];else me.z=b[3];
+        }
+      });
+    }
+  }
+
+  function resize(){var w=host.clientWidth,h=host.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+  if(window.ResizeObserver)new ResizeObserver(resize).observe(host);window.addEventListener('resize',resize);resize();
+
+  /* ---------- HUD ---------- */
+  function hhmm(m){var t=Math.floor(m)%1440;return ('0'+Math.floor(t/60)).slice(-2)+':'+('0'+Math.floor(t%60)).slice(-2);}
+  var hudEl=document.getElementById('hudtop'),bEn=document.getElementById('bEn'),bHp=document.getElementById('bHp'),vPr=document.getElementById('vPr'),promptEl=document.getElementById('prompt'),lastHud=0;
+  function setBar(el2,v,c){el2.style.setProperty('--v',Math.max(0,Math.min(100,v))+'%');el2.style.setProperty('--c',c);}
+  function updHud(){
+    hudEl.textContent='Dia '+day+' · '+hhmm(clock)+' · ×'+mult+' · '+(mode==='fp'?'normal':'automático');
+    setBar(bEn,me.en,'#4fd067');setBar(bHp,me.hp,'#e5574f');
+    vPr.textContent='Prata '+me.prata+' · Armazém: '+store.batata+' batata(s), '+store.semente+' semente(s)';
+    workers.forEach(function(w,k){var d=wEls[k];
+      d.querySelector('.p').textContent='Prioridades: '+w.prios.filter(function(p){return p.on;}).map(function(p,i){return (i+1)+'º '+p.k.toLowerCase();}).join(' · ');
+      d.querySelector('.s').textContent='Energia '+Math.round(w.energy)+'% · sementes '+(w.inv.semente||0)+' · '+(w.status||'esperando');});
+    updHotbar();
+    var n=(mode==='fp'&&!modal)?nearby():null;
+    if(mode==='spec'){promptEl.hidden=false;promptEl.textContent='E · sair do modo automático';}
+    else if(n){promptEl.hidden=false;promptEl.textContent='E · '+n.label;}
+    else promptEl.hidden=true;
+    hintEl.hidden=!(mode==='fp'&&!locked&&!modal&&!lockFailed);
+    if(modal&&modal.kind==='workers'&&!modalEl.contains(document.activeElement))renderModal();
+  }
+
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function place(now){
+    if(mode==='fp'){
+      camera.position.set(me.x,1.55,me.z);camera.rotation.set(pitch,yaw,0);
+      var t=targetTile();if(t&&!modal){hl.visible=true;hl.position.set(t.i,.025,t.j);}else hl.visible=false;
+    }else{
+      camera.position.set(TGT.x+Math.sin(yawS)*Math.cos(tiltS)*DIST,TGT.y+Math.sin(tiltS)*DIST,TGT.z+Math.cos(yawS)*Math.cos(tiltS)*DIST);
+      camera.lookAt(TGT);
+    }
+    var near=false;
+    workers.forEach(function(w){
+      var f=w.vis?Math.max(0,Math.min(1,(w.x+17)/3)):0;
+      w.c.m.visible=w.vis&&f>.02;w.c.s.visible=w.c.m.visible;
+      if(!w.vis)return;
+      if(Math.abs(w.x-FB.x0)<3.5&&Math.abs(w.z-5)<2)near=true;
+      var hop=(!reduce&&w.moving)?Math.max(0,Math.sin(now/110))*.08:0;
+      w.c.m.position.set(w.x,.83+hop,w.z);w.c.s.position.set(w.x,.03,w.z);
+      w.c.m.material.opacity=f;w.c.sm.opacity=.25*f;w.c.bar.visible=f>.9;
+      var e=w.energy/100;w.c.fill.scale.x=Math.max(.001,e);w.c.fill.position.x=-.35*(1-e);
+      w.c.fill.material.color.set(e>.3?0x4fd067:0xe6a93a);
+    });
+    gateOpen+=((near?1:0)-gateOpen)*.12;leafA.rotation.y=-gateOpen*1.35;leafB.rotation.y=gateOpen*1.35;
+    stars.position.copy(camera.position);
+    bills.forEach(function(b){b.rotation.y=Math.atan2(camera.position.x-b.position.x,camera.position.z-b.position.z);});
+  }
+
+  /* ---------- começo ---------- */
+  var last=performance.now();
+  startFarm();buildHotbar();setMode('fp');applyTime();updHud();
+  function frame(now){
+    var dt=Math.min(.1,(now-last)/1000);last=now;
+    var sim=modal?0:dt*(mode==='spec'?mult:1),n=Math.max(1,Math.ceil(sim/.1)),h=sim/n;
+    if(sim>0)for(var s=0;s<n;s++)simStep(h);
+    if(mode==='fp'&&!modal)movePlayer(dt);
+    applyTime();place(now);renderer.render(scene,camera);
+    if(now-lastHud>250){lastHud=now;updHud();}
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
